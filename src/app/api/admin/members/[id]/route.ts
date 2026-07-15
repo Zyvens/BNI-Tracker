@@ -1,30 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const body = await req.json();
-  const { name, email, whatsapp, company, category, active, newPassword } = body;
+  const { name, email, whatsapp, company, category, active } = body;
 
-  const member = await prisma.member.update({
+  if (name !== undefined && !String(name).trim()) {
+    return NextResponse.json({ error: "O nome não pode ficar vazio." }, { status: 400 });
+  }
+
+  await prisma.member.update({
     where: { id: params.id },
     data: {
-      ...(name !== undefined ? { name } : {}),
-      ...(email !== undefined ? { email } : {}),
-      ...(whatsapp !== undefined ? { whatsapp } : {}),
-      ...(company !== undefined ? { company } : {}),
-      ...(category !== undefined ? { category } : {}),
-      ...(active !== undefined ? { active } : {}),
+      ...(name !== undefined ? { name: String(name).trim() } : {}),
+      ...(email !== undefined ? { email: email || null } : {}),
+      ...(whatsapp !== undefined ? { whatsapp: whatsapp || null } : {}),
+      ...(company !== undefined ? { company: company || null } : {}),
+      ...(category !== undefined ? { category: category || null } : {}),
+      ...(active !== undefined ? { active: !!active } : {}),
     },
-    include: { user: true },
   });
-
-  if (newPassword && member.user) {
-    await prisma.user.update({
-      where: { id: member.user.id },
-      data: { passwordHash: await bcrypt.hash(String(newPassword), 10), mustChangePassword: true },
-    });
-  }
 
   return NextResponse.json({ ok: true });
 }

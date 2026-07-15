@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { slugifyUsername, generatePassword, generateUniqueUsername } from "@/lib/credentials";
+import { linkPastReports } from "@/lib/reportLinking";
 
 export async function GET() {
   const members = await prisma.member.findMany({
@@ -47,5 +48,8 @@ export async function POST(req: NextRequest) {
     include: { user: { select: { username: true } } },
   });
 
-  return NextResponse.json({ member, username, password }, { status: 201 });
+  // Vincula automaticamente relatórios já importados com esse nome (sem precisar reimportar)
+  const linkedReports = await linkPastReports(member.id, cleanName);
+
+  return NextResponse.json({ member, username, password, linkedReports }, { status: 201 });
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Plus, Check, UserCheck, X, CalendarDays } from "lucide-react";
 import { fmtMoney } from "@/components/ui";
+import LogoutButton from "@/components/LogoutButton";
 
 type Entry = {
   id: string;
@@ -49,18 +50,21 @@ export default function SemanasClient(p: Props) {
     <div className="flex flex-col">
       {/* Header */}
       <div className="bg-surface border-b border-gray-100 sticky top-0 z-30" style={{ paddingTop: "env(safe-area-inset-top)" }}>
-        <div className="px-4 h-14 flex items-center justify-between">
-          <div>
-            <h1 className="text-[17px] font-extrabold text-text-main font-display">Reuniões Semanais</h1>
-            <p className="text-[11px] text-text-muted">
+        <div className="px-4 h-14 flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h1 className="text-[17px] font-extrabold text-text-main font-display truncate">Reuniões Semanais</h1>
+            <p className="text-[11px] text-text-muted truncate">
               {p.windowLabel} · {p.totals.total} reuniões
             </p>
           </div>
-          <Link href="/registro-semana">
-            <motion.div whileTap={{ scale: 0.9 }} className="w-9 h-9 rounded-full bg-primary flex items-center justify-center touch-manipulation">
-              <Plus size={18} color="white" strokeWidth={2.5} />
-            </motion.div>
-          </Link>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <Link href="/registro-semana">
+              <motion.div whileTap={{ scale: 0.9 }} className="w-9 h-9 rounded-full bg-primary flex items-center justify-center touch-manipulation">
+                <Plus size={18} color="white" strokeWidth={2.5} />
+              </motion.div>
+            </Link>
+            <LogoutButton />
+          </div>
         </div>
       </div>
 

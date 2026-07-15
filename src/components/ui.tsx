@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
+import LogoutButton from "@/components/LogoutButton";
 
 export const STATUS_COLORS = {
   green: { color: "#22C55E", bg: "#F0FDF4", border: "#D1FAE5", emoji: "🟢", label: "Meta atingida ✓" },
@@ -125,11 +126,14 @@ export function PageHeader({
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="px-4 h-14 flex items-center justify-between">
-        <div>
-          <h1 className="text-[17px] font-extrabold text-text-main font-display">{title}</h1>
-          {subtitle && <p className="text-[11px] text-text-muted">{subtitle}</p>}
+        <div className="min-w-0">
+          <h1 className="text-[17px] font-extrabold text-text-main font-display truncate">{title}</h1>
+          {subtitle && <p className="text-[11px] text-text-muted truncate">{subtitle}</p>}
         </div>
-        {right}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {right}
+          <LogoutButton />
+        </div>
       </div>
     </div>
   );

@@ -21,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import type { FeedItem } from "@/lib/feed";
+import LogoutButton from "@/components/LogoutButton";
 
 const FILTERS = [
   { id: "todos", label: "Todos", shortLabel: "Todos" },
@@ -136,12 +137,12 @@ export default function FeedClient({
         className="bg-surface border-b border-gray-100 sticky top-0 z-30"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
-        <div className="px-4 h-14 flex items-center justify-between">
-          <div>
-            <h1 className="text-[17px] font-extrabold text-text-main font-display">Feed de Atividades</h1>
-            <p className="text-[11px] text-text-muted">{items.length} registros</p>
+        <div className="px-4 h-14 flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h1 className="text-[17px] font-extrabold text-text-main font-display truncate">Feed de Atividades</h1>
+            <p className="text-[11px] text-text-muted truncate">{items.length} registros</p>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-shrink-0">
             <Link href="/convidados" className="w-9 h-9 rounded-full bg-background flex items-center justify-center touch-manipulation">
               <UserPlus size={16} color="#1A1A1A" strokeWidth={2} />
             </Link>
@@ -157,6 +158,7 @@ export default function FeedClient({
               <Plus size={13} color="#8B5CF6" strokeWidth={2.5} />
               <span className="text-[11px] font-bold" style={{ color: "#8B5CF6" }}>1-a-1</span>
             </motion.button>
+            <LogoutButton />
           </div>
         </div>
         {/* Filtros */}

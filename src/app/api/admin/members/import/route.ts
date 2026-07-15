@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { slugifyUsername, generatePassword, generateUniqueUsername } from "@/lib/credentials";
+import { linkPastReports } from "@/lib/reportLinking";
 
 // Parser CSV simples (RFC4180-ish): suporta campos entre aspas com vírgulas/aspas escapadas.
 function parseCsv(text: string): string[][] {
@@ -109,7 +110,7 @@ export async function POST(req: NextRequest) {
     const username = await generateUniqueUsername(prisma, slugifyUsername(name));
     const password = generatePassword();
 
-    await prisma.member.create({
+    const member = await prisma.member.create({
       data: {
         name,
         whatsapp,
@@ -125,6 +126,9 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+
+    // Vincula automaticamente relatórios já importados com esse nome
+    await linkPastReports(member.id, name);
 
     created.push({ name, username, password });
     existingNames.add(key);

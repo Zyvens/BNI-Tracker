@@ -26,6 +26,7 @@ import {
   Check,
 } from "lucide-react";
 import { ScoreRing, ProgressBar, STATUS_COLORS, StatusKey, fmtMoney, fadeUp, stagger } from "@/components/ui";
+import LogoutButton from "@/components/LogoutButton";
 
 const KPI_ICONS: Record<string, any> = {
   refDadas: Send,
@@ -144,6 +145,7 @@ export default function DashboardClient(p: Props) {
                 <span className="text-[11px] font-bold text-primary">Registrar</span>
               </motion.div>
             </Link>
+            <LogoutButton />
           </div>
         </div>
       </div>

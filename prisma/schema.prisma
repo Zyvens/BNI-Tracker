@@ -1,0 +1,263 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String   @id @default(uuid())
+  username           String   @unique
+  passwordHash       String
+  role               String   @default("MEMBER") // ADMIN | MEMBER
+  mustChangePassword Boolean  @default(true)
+  memberId           String?  @unique
+  member             Member?  @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  notifications      Notification[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Member {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?
+  whatsapp  String?
+  company   String?
+  category  String? // categoria profissional no capítulo
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user               User?
+  performanceRecords PerformanceRecord[]
+  weekEntries        WeekEntry[]
+  referralsGiven     Referral[] @relation("Giver")
+  referralsReceived  Referral[] @relation("Receiver")
+  guests             Guest[]
+  oneToOnes          OneToOne[] @relation("Owner")
+  oneToOnesWith      OneToOne[] @relation("With")
+}
+
+// Relatório oficial mensal (PDF Semáforos) — mesmo parser do BNI Performance Tool
+model Report {
+  id         String   @id @default(uuid())
+  month      Int
+  year       Int
+  importedAt DateTime @default(now())
+
+  performanceRecords PerformanceRecord[]
+
+  @@unique([month, year])
+}
+
+model PerformanceRecord {
+  id         String  @id @default(uuid())
+  memberId   String?
+  reportId   String
+  memberName String
+
+  presences     Int
+  absences      Int
+  late          Int
+  monitored     Int
+  substitutions Int
+
+  referralsGiven    Int
+  referralsReceived Int
+  oneToOnes         Int
+  visitors          Int
+  testimonials      Int
+  ceu               Int
+  tyfcb             Float
+
+  pointsAbsences     Int
+  pointsLate         Int
+  pointsReferrals    Int
+  pointsOneToOnes    Int
+  pointsVisitors     Int
+  pointsTestimonials Int
+  pointsCeu          Int
+  pointsTyfcb        Int
+  totalPoints        Int
+
+  member Member? @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  report Report  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@unique([memberName, reportId])
+}
+
+// Registro semanal do membro (tempo real, entre relatórios oficiais)
+model WeekEntry {
+  id         String   @id @default(uuid())
+  memberId   String
+  dateISO    String // data da reunião yyyy-mm-dd
+  presenca   String   @default("P") // P | Aus | Subs
+  atrasado   Boolean  @default(false)
+  ueg        Boolean  @default(false)
+  testemunho Boolean  @default(false)
+  rdi        Int      @default(0)
+  rde        Int      @default(0)
+  rri        Int      @default(0)
+  rre        Int      @default(0)
+  convidados Int      @default(0)
+  reunioes1a1 Int     @default(0)
+  onf        Float    @default(0)
+  observacoes String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, dateISO])
+}
+
+// Referência (dada/recebida) — objeto compartilhado entre gerador e beneficiado.
+// CRM interno: pipeline, próxima ação, histórico e ciclo de declaração de valor.
+model Referral {
+  id           String  @id @default(uuid())
+  giverId      String? // membro que deu (null = origem externa)
+  giverName    String? // nome externo quando giverId é null
+  receiverId   String? // membro beneficiado (null = destino externo)
+  receiverName String?
+
+  contactName String // contato indicado / possível cliente
+  company     String?
+  phone       String?
+  email       String?
+  category    String? // produto/serviço ou categoria
+  segment     String? // segmento de mercado
+  origem      String  @default("referencia_direta") // referencia_direta | parceria_estrategica | indicacao_recorrente | negocio_compartilhado | clube_permuta | cliente_proprio
+  dataISO     String // data da referência
+
+  estimatedValue Float   @default(0)
+  potential      String? // baixo | medio | alto
+  notes          String?
+
+  // Pipeline (CRM)
+  status         String  @default("recebida")
+  // enviada | recebida | contato_pendente | contato_realizado | reuniao_marcada |
+  // diagnostico | proposta_enviada | negociacao | fechada | perdida |
+  // parceria | sem_perfil | duplicada
+  nextAction     String?
+  nextActionISO  String?
+  lostReason     String?
+  firstContactISO String?
+  closedISO      String?
+
+  // Ciclo de declaração/confirmação de valor (base compartilhada)
+  declaredValue     Float?   // valor declarado pelo beneficiado
+  declaredISO       String?
+  receivedISO       String?  // data de recebimento do valor
+  dealType          String?  // tipo de negócio
+  inOfficialSystem  Boolean  @default(false) // lançado no sistema oficial (ONF)
+  heardInMeeting    Boolean  @default(false) // apresentado em reunião
+  confirmationStatus String  @default("nao_aplicavel")
+  // nao_aplicavel | aguardando_declaracao | valor_declarado | confirmada | contestada | corrigida
+  confirmedValue    Float?
+  confirmedISO      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  giver    Member? @relation("Giver", fields: [giverId], references: [id], onDelete: SetNull)
+  receiver Member? @relation("Receiver", fields: [receiverId], references: [id], onDelete: SetNull)
+  logs     ReferralLog[]
+}
+
+// Histórico de contatos/eventos de uma referência
+model ReferralLog {
+  id         String   @id @default(uuid())
+  referralId String
+  dataISO    String
+  tipo       String   @default("nota") // nota | contato | reuniao | proposta | status | valor
+  texto      String
+  autorId    String? // userId de quem registrou
+  createdAt  DateTime @default(now())
+
+  referral Referral @relation(fields: [referralId], references: [id], onDelete: Cascade)
+}
+
+// Gestão de convidados
+model Guest {
+  id           String   @id @default(uuid())
+  memberId     String
+  name         String
+  company      String?
+  category     String?
+  phone        String?
+  email        String?
+  inviteISO    String // data do convite
+  meetingISO   String? // reunião escolhida
+  confirmed    Boolean  @default(false)
+  attended     Boolean  @default(false)
+  interested   Boolean  @default(false)
+  becameMember Boolean  @default(false)
+  receivedBy   String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+}
+
+// Reunião 1-a-1 nominal (alimenta ficha de relacionamento e o Feed)
+model OneToOne {
+  id           String  @id @default(uuid())
+  memberId     String
+  withMemberId String?
+  withName     String? // quando não é membro cadastrado
+  dataISO      String
+  local        String?
+  duracao      String?
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  member Member  @relation("Owner", fields: [memberId], references: [id], onDelete: Cascade)
+  with   Member? @relation("With", fields: [withMemberId], references: [id], onDelete: SetNull)
+}
+
+// Ajuste rápido de KPI feito pelo membro no dashboard (tempo real)
+model KpiOverride {
+  id        String   @id @default(uuid())
+  memberId  String
+  kpiId     String // convidados | refDadas | uegs | reunioes1a1 | testemunhos | opnf
+  value     Float
+  updatedAt DateTime @updatedAt
+
+  @@unique([memberId, kpiId])
+}
+
+// Central de notificações in-app
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  tipo      String    @default("info") // info | alerta | critico | confirmacao
+  title     String
+  body      String?
+  link      String?
+  dedupeKey String? // evita alertas repetidos do motor
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+}
+
+// Regras configuráveis (metas podem variar por capítulo/região)
+model Settings {
+  id             Int      @id @default(1)
+  groupName      String   @default("BNI")
+  goalRefs       Int      @default(27)
+  goalConvidados Int      @default(8)
+  goal1a1        Int      @default(22)
+  goalUegs       Int      @default(22)
+  goalTestemunhos Int     @default(2)
+  goalOpnf       Float    @default(20000)
+  targetScore    Int      @default(100)
+  safetyMargin   Int      @default(10) // margem de segurança em pontos
+  updatedAt      DateTime @updatedAt
+}

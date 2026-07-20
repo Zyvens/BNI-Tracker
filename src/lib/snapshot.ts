@@ -116,7 +116,16 @@ export async function getMemberSnapshot(memberId: string) {
   if (latest) {
     ausencias = Math.max(ausencias, latest.absences);
     atrasos = Math.max(atrasos, latest.late);
+    presencas = Math.max(presencas, latest.presences);
+    substituicoes = Math.max(substituicoes, latest.substitutions);
   }
+
+  // Total de reuniões: maior entre o que o membro já registrou manualmente
+  // e o total apurado no relatório oficial (presenças + ausências + substituições).
+  const totalReunioes = Math.max(
+    winEntries.length,
+    latest ? latest.presences + latest.absences + latest.substitutions : 0
+  );
 
   // ---- Valores atuais: maior entre oficial, registrado e ajuste rápido ----
   const overrideMap = new Map(overrides.map((o) => [o.kpiId, o.value]));
@@ -221,7 +230,7 @@ export async function getMemberSnapshot(memberId: string) {
     atrasos,
     presencas,
     substituicoes,
-    totalReunioes: winEntries.length,
+    totalReunioes,
     score,
     outlook,
     kpis,

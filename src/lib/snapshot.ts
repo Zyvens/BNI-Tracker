@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import {
   buildKpis,
   DEFAULT_GOALS,
+  FULL_WINDOW_MONTHS,
   Goals,
   KpiId,
   KpiValues,
@@ -12,8 +13,9 @@ import {
   computeProjection,
   computeStatusCard,
   computeOutlook,
+  computeTenureMonths,
+  proratedGoals,
   kpiStatus,
-  dashboardStatus,
   kpiPoints,
   kpiDica,
   MonthlyProduction,
@@ -54,7 +56,6 @@ export async function getMemberSnapshot(memberId: string) {
   const today = new Date();
   const win = currentWindow(today);
   const goals = await getGoals();
-  const KPIS = buildKpis(goals);
 
   const [member, entries, records, refsGiven, refsReceived, oneToOnes, reportCount, overrides] =
     await Promise.all([
@@ -127,6 +128,18 @@ export async function getMemberSnapshot(memberId: string) {
     latest ? latest.presences + latest.absences + latest.substitutions : 0
   );
 
+  // ---- Tempo de casa e metas proporcionais ----
+  // Um membro que entrou no meio do semestre não pode ser cobrado pelas metas de
+  // 6 meses inteiros: o total de reuniões já indica quanto tempo ele está ativo
+  // (o próprio relatório oficial só soma a partir da entrada dele no capítulo).
+  const tenureMonths = computeTenureMonths(totalReunioes);
+  const isProrated = tenureMonths < FULL_WINDOW_MONTHS - 0.05;
+  const effectiveGoals = proratedGoals(goals, tenureMonths);
+  const periodLabel = isProrated
+    ? `${tenureMonths.toFixed(1).replace(".", ",")} meses (seu tempo no grupo)`
+    : "6 meses";
+  const KPIS = buildKpis(effectiveGoals, periodLabel, !isProrated);
+
   // ---- Valores atuais: maior entre oficial, registrado e ajuste rápido ----
   const overrideMap = new Map(overrides.map((o) => [o.kpiId, o.value]));
   const current = emptyValues();
@@ -163,23 +176,22 @@ export async function getMemberSnapshot(memberId: string) {
     });
   }
 
-  const { months, actions } = computeProjection(production, current, goals, today, ausencias, atrasos);
+  const { months, actions } = computeProjection(production, current, effectiveGoals, today, ausencias, atrasos);
   const statusCard = computeStatusCard(actions);
-  const score = computeScore(current, ausencias, atrasos, goals);
-  const outlook = computeOutlook(score, months, goals, today);
+  const score = computeScore(current, ausencias, atrasos, effectiveGoals);
+  const outlook = computeOutlook(score, months, effectiveGoals, today);
 
   const kpis = KPIS.map((kpi) => {
     const v = current[kpi.id];
-    const pts = kpiPoints(kpi.id, v, goals);
+    const pts = kpiPoints(kpi.id, v, effectiveGoals);
     return {
       ...kpi,
       current: v,
       status: kpiStatus(v, kpi.goal),
-      statusDash: dashboardStatus(v, kpi.goal),
       points: pts.points,
       maxPoints: pts.maxPoints,
       pct: Math.min(Math.round((v / kpi.goal) * 100), 100),
-      dica: kpiDica(kpi.id, v, kpi.goal, kpi.isCurrency),
+      dica: kpiDica(kpi.id, v, kpi.goal, kpi.isCurrency, tenureMonths),
     };
   });
 
@@ -222,6 +234,9 @@ export async function getMemberSnapshot(memberId: string) {
   return {
     member,
     goals,
+    effectiveGoals,
+    tenureMonths,
+    isProrated,
     window: { start: win.start.toISOString(), end: win.end.toISOString(), label: win.label },
     official,
     weekly,

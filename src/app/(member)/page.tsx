@@ -36,7 +36,7 @@ export default async function DashboardPage() {
     label: k.label,
     goal: k.goal,
     current: k.current,
-    status: k.statusDash,
+    status: k.status,
     points: k.points,
     maxPoints: k.maxPoints,
     pct: k.pct,
@@ -95,6 +95,8 @@ export default async function DashboardPage() {
       totalReunioes={snap.totalReunioes}
       presencas={snap.presencas}
       ausencias={snap.ausencias}
+      tenureMonths={snap.tenureMonths}
+      isProrated={snap.isProrated}
       statusCard={snap.statusCard}
       kpis={kpiCards}
       actions={snap.actions.map((a) => ({

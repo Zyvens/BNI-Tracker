@@ -36,6 +36,39 @@ export const DEFAULT_GOALS: Goals = {
   safetyMargin: 10,
 };
 
+// Cadência padrão de reuniões do BNI (~1/semana) e duração da janela móvel oficial.
+export const MEETINGS_PER_MONTH = 4;
+export const FULL_WINDOW_MONTHS = 6;
+
+// Quantos meses de casa o membro tem, com base no total de reuniões já registradas
+// (oficial ou manual). Um membro que entrou no meio do semestre não deve ser cobrado
+// pelas metas de 6 meses inteiros — suas metas devem ser proporcionais ao seu tempo
+// real de participação. Resultado limitado a [0, 6].
+export function computeTenureMonths(totalReunioes: number): number {
+  const months = totalReunioes / MEETINGS_PER_MONTH;
+  return Math.min(Math.max(months, 0), FULL_WINDOW_MONTHS);
+}
+
+// Metas proporcionais ao tempo de casa. Membros com tenure completo (6 meses) mantêm
+// as metas configuradas pelo coordenador sem alteração. Cada meta é arredondada e
+// nunca fica em zero (evitaria divisão por zero e faria qualquer registro "bater a
+// meta" instantaneamente). targetScore/safetyMargin não são afetados — a pontuação
+// continua sendo sempre 0-100.
+export function proratedGoals(g: Goals, tenureMonths: number): Goals {
+  const factor = Math.min(Math.max(tenureMonths, 0), FULL_WINDOW_MONTHS) / FULL_WINDOW_MONTHS;
+  if (factor >= 1) return g;
+  const scale = (v: number) => Math.max(Math.round(v * factor), 1);
+  return {
+    ...g,
+    refDadas: scale(g.refDadas),
+    convidados: scale(g.convidados),
+    reunioes1a1: scale(g.reunioes1a1),
+    uegs: scale(g.uegs),
+    testemunhos: scale(g.testemunhos),
+    opnf: scale(g.opnf),
+  };
+}
+
 export type KpiDef = {
   id: KpiId;
   label: string;
@@ -45,31 +78,34 @@ export type KpiDef = {
   metaLabel: string;
 };
 
-export function buildKpis(g: Goals = DEFAULT_GOALS): KpiDef[] {
+// periodLabel/showWeeklyHint permitem adaptar o texto da meta quando ela foi
+// proporcionalizada ao tempo de casa do membro (ver proratedGoals) — nesse caso o
+// período não é mais "6 meses" e a dica "~1/semana" (calibrada para 6 meses cheios)
+// deixa de fazer sentido.
+export function buildKpis(
+  g: Goals = DEFAULT_GOALS,
+  periodLabel: string = "6 meses",
+  showWeeklyHint: boolean = true
+): KpiDef[] {
   const money = (v: number) => `R$ ${v.toLocaleString("pt-BR")}`;
+  const weekly = (hint: string) => (showWeeklyHint ? ` (${hint})` : "");
   return [
-    { id: "convidados", label: "Convidados", shortLabel: "Conv.", goal: g.convidados, metaLabel: `Meta: ${g.convidados} em 6 meses` },
-    { id: "refDadas", label: "Referências Dadas", shortLabel: "Refs Dadas", goal: g.refDadas, metaLabel: `Meta: ${g.refDadas} em 6 meses (~1/semana)` },
-    { id: "uegs", label: "UEGs", shortLabel: "UEGs", goal: g.uegs, metaLabel: `Meta: ${g.uegs} em 6 meses` },
-    { id: "reunioes1a1", label: "Reuniões 1-a-1", shortLabel: "1-a-1", goal: g.reunioes1a1, metaLabel: `Meta: ${g.reunioes1a1} em 6 meses (~1/semana)` },
-    { id: "testemunhos", label: "Testemunhos", shortLabel: "Testemunhos", goal: g.testemunhos, metaLabel: `Meta: ${g.testemunhos} em 6 meses` },
-    { id: "opnf", label: "OPNF", shortLabel: "OPNF", goal: g.opnf, isCurrency: true, metaLabel: `Meta: ${money(g.opnf)} em 6 meses` },
+    { id: "convidados", label: "Convidados", shortLabel: "Conv.", goal: g.convidados, metaLabel: `Meta: ${g.convidados} em ${periodLabel}` },
+    { id: "refDadas", label: "Referências Dadas", shortLabel: "Refs Dadas", goal: g.refDadas, metaLabel: `Meta: ${g.refDadas} em ${periodLabel}${weekly("~1/semana")}` },
+    { id: "uegs", label: "UEGs", shortLabel: "UEGs", goal: g.uegs, metaLabel: `Meta: ${g.uegs} em ${periodLabel}` },
+    { id: "reunioes1a1", label: "Reuniões 1-a-1", shortLabel: "1-a-1", goal: g.reunioes1a1, metaLabel: `Meta: ${g.reunioes1a1} em ${periodLabel}${weekly("~1/semana")}` },
+    { id: "testemunhos", label: "Testemunhos", shortLabel: "Testemunhos", goal: g.testemunhos, metaLabel: `Meta: ${g.testemunhos} em ${periodLabel}` },
+    { id: "opnf", label: "OPNF", shortLabel: "OPNF", goal: g.opnf, isCurrency: true, metaLabel: `Meta: ${money(g.opnf)} em ${periodLabel}` },
   ];
 }
 
-// Semáforo por KPI: verde >= meta; amarelo >= ~78% da meta; vermelho abaixo.
+// Semáforo por KPI — regra única do semáforo, usada em TODAS as telas
+// (Dashboard, Saúde DMI, Rumo aos 100): verde >= meta; amarelo >= ~78% da meta
+// (faixa intermediária oficial); vermelho abaixo disso.
 export function kpiStatus(v: number, goal: number): Status {
   if (v >= goal) return "green";
   if (v >= Math.floor(goal * 0.78)) return "yellow";
   return "red";
-}
-
-// Semáforo do dashboard: vermelho abaixo da meta; amarelo pouca margem acima
-// (menos de ~10% de folga); verde com folga confortável.
-export function dashboardStatus(v: number, goal: number): Status {
-  if (v < goal) return "red";
-  const margin = Math.max(Math.ceil(goal * 0.1), 2);
-  return v < goal + margin ? "yellow" : "green";
 }
 
 // Pontos de um KPI individual (pesos do Semáforo oficial)
@@ -303,9 +339,10 @@ export function computeStatusCard(actions: KpiAction[]): StatusCard {
   };
 }
 
-export function kpiDica(id: KpiId, v: number, goal: number, isCurrency = false): string {
+export function kpiDica(id: KpiId, v: number, goal: number, isCurrency = false, periodMonths: number = 6): string {
   const gap = goal - v;
   const fmt = (n: number) => (isCurrency ? `R$ ${n.toLocaleString("pt-BR")}` : `${n}`);
+  const perMonth = (goal / Math.max(periodMonths, 1)).toFixed(1);
   if (v >= goal) {
     switch (id) {
       case "convidados": return "Meta atingida! Continue trazendo convidados para manter o DMI saudável.";
@@ -318,9 +355,9 @@ export function kpiDica(id: KpiId, v: number, goal: number, isCurrency = false):
   }
   switch (id) {
     case "convidados": return `Faltam ${fmt(gap)} convidados para a meta. Leve pelo menos 1 por reunião.`;
-    case "refDadas": return `Faltam ${fmt(gap)} referências. Meta: ~${(goal / 6).toFixed(1)}/mês ou 1/semana.`;
+    case "refDadas": return `Faltam ${fmt(gap)} referências. Meta: ~${perMonth}/mês.`;
     case "uegs": return `Faltam ${fmt(gap)} UEGs. Participe de todos os UEGs das próximas reuniões.`;
-    case "reunioes1a1": return `Faltam ${fmt(gap)} reuniões 1-a-1. Agende pelo menos 1 por semana.`;
+    case "reunioes1a1": return `Faltam ${fmt(gap)} reuniões 1-a-1. Meta: ~${perMonth}/mês.`;
     case "testemunhos": return `Faltam ${fmt(gap)} testemunho(s). Compartilhe resultados de parceiros em reunião.`;
     case "opnf": return `Faltam ${fmt(gap)} em OPNF. Registre todos os negócios fechados.`;
   }

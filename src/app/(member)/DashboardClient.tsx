@@ -72,6 +72,8 @@ type Props = {
   totalReunioes: number;
   presencas: number;
   ausencias: number;
+  tenureMonths: number;
+  isProrated: boolean;
   statusCard: { status: StatusKey; emoji: string; title: string; subtitle: string };
   kpis: Kpi[];
   actions: { id: string; label: string; isCurrency: boolean; goal: number; currentValue: number; urgency: string; actionMessage: string }[];
@@ -182,6 +184,12 @@ export default function DashboardClient(p: Props) {
                 {p.windowLabel} · {p.totalReunioes} reuniões
               </p>
               <div className="mt-3 flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-50">
+                  <CalendarClock size={10} color="#2563EB" strokeWidth={2.5} />
+                  <span className="text-[10px] font-bold" style={{ color: "#2563EB" }}>
+                    {p.tenureMonths >= 6 ? "6+ meses no grupo" : `${p.tenureMonths.toFixed(1).replace(".", ",")} meses no grupo`}
+                  </span>
+                </div>
                 <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-50">
                   <span className="w-1.5 h-1.5 rounded-full bg-success" />
                   <span className="text-[10px] font-bold text-success">{p.presencas} presenças</span>
@@ -193,6 +201,11 @@ export default function DashboardClient(p: Props) {
                   </div>
                 )}
               </div>
+              {p.isProrated && (
+                <p className="text-[10px] text-text-muted mt-2 leading-relaxed">
+                  Suas metas foram ajustadas proporcionalmente ao seu tempo no grupo.
+                </p>
+              )}
             </div>
             <div className="flex-shrink-0">
               <ScoreRing score={p.score} max={p.targetScore} />

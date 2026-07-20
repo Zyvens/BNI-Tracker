@@ -27,6 +27,8 @@ export default async function DashboardPage() {
     subtitle: string;
     editable: boolean;
     inverse: boolean;
+    noScore?: boolean;
+    statusLabel?: string;
   };
 
   const kpiCards: DashboardKpi[] = snap.kpis.map((k) => ({
@@ -59,6 +61,29 @@ export default async function DashboardPage() {
     subtitle: "Meta: zero ausências no semestre",
     editable: false,
     inverse: true,
+  });
+
+  // 8º card: Substituições — apenas informativo. NÃO entra no cálculo do semáforo/pontuação
+  // e não gera ação no Plano de Ação; existe só para acompanhar a regra de manutenção do
+  // grupo (contrato permite no máximo 2 substituições por semestre).
+  const subs = snap.substituicoes;
+  const subsStatus = subs === 0 ? "green" : subs === 1 ? "yellow" : "red";
+  kpiCards.push({
+    id: "substituicoes",
+    label: "Substituições",
+    goal: 2,
+    current: subs,
+    status: subsStatus,
+    points: 0,
+    maxPoints: 0,
+    pct: Math.max(100 - subs * 50, 0),
+    isCurrency: false,
+    subtitle: "Regra de manutenção do grupo: até 2 substituições no semestre. Não afeta sua pontuação.",
+    editable: false,
+    inverse: false,
+    noScore: true,
+    statusLabel:
+      subsStatus === "green" ? "Dentro do limite" : subsStatus === "yellow" ? "Atenção ao limite" : "Limite atingido",
   });
 
   return (

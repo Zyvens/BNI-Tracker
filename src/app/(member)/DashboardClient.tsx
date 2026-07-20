@@ -16,6 +16,7 @@ import {
   MessageSquareQuote,
   Banknote,
   UserX,
+  Repeat,
   CalendarClock,
   Target,
   TrendingUp,
@@ -36,6 +37,7 @@ const KPI_ICONS: Record<string, any> = {
   testemunhos: MessageSquareQuote,
   opnf: Banknote,
   ausencias: UserX,
+  substituicoes: Repeat,
 };
 
 const URGENCY_STYLE: Record<string, { bg: string; border: string; color: string; dot: string }> = {
@@ -58,6 +60,8 @@ type Kpi = {
   subtitle: string;
   editable: boolean;
   inverse: boolean;
+  noScore?: boolean;
+  statusLabel?: string;
 };
 
 type Props = {
@@ -451,14 +455,14 @@ function KpiCard({ kpi: k, onClick }: { kpi: Kpi; onClick: () => void }) {
         <div className="flex items-end justify-between gap-1">
           <span className="text-[20px] font-extrabold leading-none text-text-main font-display">{chip}</span>
           <span className="text-[9px] text-text-muted leading-none pb-0.5">
-            {k.points}/{k.maxPoints} pts
+            {k.noScore ? "não conta no semáforo" : `${k.points}/${k.maxPoints} pts`}
           </span>
         </div>
         <ProgressBar pct={k.pct} color={st.color} />
         <div className="flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: st.color }} />
           <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: st.color }}>
-            {label}
+            {k.statusLabel ?? label}
           </span>
         </div>
       </div>

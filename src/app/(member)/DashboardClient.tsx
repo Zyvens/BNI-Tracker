@@ -75,7 +75,7 @@ type Props = {
   statusCard: { status: StatusKey; emoji: string; title: string; subtitle: string };
   kpis: Kpi[];
   actions: { id: string; label: string; isCurrency: boolean; goal: number; currentValue: number; urgency: string; actionMessage: string }[];
-  months: { monthLabel: string; monthIndex: number; status: StatusKey; belowGoal: string[]; nearGoal: string[] }[];
+  months: { monthLabel: string; monthIndex: number; status: StatusKey; score: number; belowGoal: string[]; nearGoal: string[] }[];
   refsAnalise: {
     total: number;
     convertidas: number;
@@ -376,19 +376,31 @@ export default function DashboardClient(p: Props) {
                   </p>
                   {p.months.map((m) => {
                     const st = STATUS_COLORS[m.status];
+                    const hasLag = m.belowGoal.length > 0 || m.nearGoal.length > 0;
                     return (
                       <div
                         key={m.monthIndex}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl border"
+                        className="px-3 py-2.5 rounded-xl border"
                         style={{ backgroundColor: st.bg, borderColor: st.border }}
                       >
-                        <span className="text-[13px]">{st.emoji}</span>
-                        <span className="flex-1 text-[13px] font-semibold text-text-main capitalize">{m.monthLabel}</span>
-                        {m.belowGoal.length > 0 && (
-                          <span className="text-[10px] font-bold text-danger">{m.belowGoal.join(", ")}</span>
-                        )}
-                        {m.belowGoal.length === 0 && m.nearGoal.length > 0 && (
-                          <span className="text-[10px] font-bold text-warning">{m.nearGoal.join(", ")} próximo</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[13px]">{st.emoji}</span>
+                          <span className="flex-1 text-[13px] font-semibold text-text-main capitalize">{m.monthLabel}</span>
+                          <span
+                            className="text-[13px] font-extrabold font-display flex-shrink-0"
+                            style={{ color: st.color }}
+                          >
+                            {m.score >= 100 ? "🏆 " : ""}
+                            {m.score} pts
+                          </span>
+                        </div>
+                        {hasLag && (
+                          <p
+                            className="text-[10px] font-bold mt-1 pl-6"
+                            style={{ color: m.belowGoal.length > 0 ? "#CC0000" : "#D97706" }}
+                          >
+                            {m.belowGoal.length > 0 ? m.belowGoal.join(", ") : `${m.nearGoal.join(", ")} próximo`}
+                          </p>
                         )}
                       </div>
                     );

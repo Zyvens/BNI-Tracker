@@ -110,6 +110,7 @@ export default async function DashboardPage() {
         monthLabel: m.monthLabel,
         monthIndex: m.monthIndex,
         status: m.status,
+        score: m.score,
         belowGoal: m.belowGoal.map(shortLabel),
         nearGoal: m.nearGoal.map(shortLabel),
       }))}

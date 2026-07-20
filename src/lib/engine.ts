@@ -85,6 +85,13 @@ export function kpiPoints(id: KpiId, v: number, g: Goals = DEFAULT_GOALS): { poi
   }
 }
 
+// Faixa oficial do semáforo por pontuação total: >=70 verde, 40-69 amarelo, <40 vermelho.
+export function scoreSemaforoStatus(score: number): Status {
+  if (score >= 70) return "green";
+  if (score >= 40) return "yellow";
+  return "red";
+}
+
 // Pontuação 0-100 no padrão do Semáforo oficial (pesos: 20/20/10/10/5/15 + 15 presenças + 5 pontualidade)
 export function computeScore(v: KpiValues, ausencias: number, atrasos: number, g: Goals = DEFAULT_GOALS): number {
   let s = 0;
@@ -170,6 +177,7 @@ export function computeProjection(
       if (v < kpi.goal) belowGoal.push(kpi.id);
       else if (v < kpi.goal * 1.15) nearGoal.push(kpi.id);
     }
+    const monthScore = computeScore(values, ausencias, atrasos, goals);
     months.push({
       monthLabel: target.toLocaleDateString("pt-BR", { month: "long", year: "numeric" }),
       monthShortLabel: target.toLocaleDateString("pt-BR", { month: "short" }),
@@ -177,8 +185,11 @@ export function computeProjection(
       values,
       belowGoal,
       nearGoal,
-      status: belowGoal.length > 0 ? "red" : nearGoal.length > 0 ? "yellow" : "green",
-      score: computeScore(values, ausencias, atrasos, goals),
+      // Cor do semáforo pela pontuação projetada (mesma faixa oficial usada no resto do app),
+      // não apenas por "algum indicador abaixo da meta" — evita mostrar vermelho quando a
+      // pontuação total ainda está em zona verde/amarela.
+      status: scoreSemaforoStatus(monthScore),
+      score: monthScore,
     });
   }
 

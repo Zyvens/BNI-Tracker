@@ -10,6 +10,16 @@ import {
   CalendarDays,
   BrainCircuit,
 } from "lucide-react";
+import { scoreSemaforoStatus } from "@/lib/engine";
+
+// Mesma faixa de cor do semáforo usada em todo o app (ver ScoreRing em ui.tsx):
+// >=100 dourado (Clube 100), 70-99 verde, 40-69 amarelo, <40 vermelho.
+const RING_COLORS = {
+  gold: { stroke: "#F59E0B", track: "#FEF3C7", text: "#D97706", glow: "rgba(245,158,11,0.6)" },
+  green: { stroke: "#22C55E", track: "#DCFCE7", text: "#16A34A", glow: "rgba(34,197,94,0.5)" },
+  yellow: { stroke: "#F59E0B", track: "#FEF3C7", text: "#D97706", glow: "rgba(245,158,11,0.5)" },
+  red: { stroke: "#CC0000", track: "#F0E0E0", text: "#CC0000", glow: "rgba(204,0,0,0.35)" },
+} as const;
 
 const TABS = [
   { path: "/", label: "Dashboard", icon: LayoutGrid },
@@ -26,6 +36,7 @@ export default function BottomNav({ score, max = 100 }: { score?: number; max?: 
   const pct = score !== undefined ? Math.min(score / max, 1) : 0;
   const offset = circ - pct * circ;
   const gold = score !== undefined && score >= max;
+  const tier = RING_COLORS[gold ? "gold" : scoreSemaforoStatus(score ?? 0)];
 
   return (
     <div
@@ -80,7 +91,7 @@ export default function BottomNav({ score, max = 100 }: { score?: number; max?: 
                   cy="20"
                   r={r}
                   fill="none"
-                  stroke={gold ? "#FEF3C7" : "#F0E0E0"}
+                  stroke={tier.track}
                   strokeWidth="3.5"
                 />
                 <motion.circle
@@ -88,25 +99,24 @@ export default function BottomNav({ score, max = 100 }: { score?: number; max?: 
                   cy="20"
                   r={r}
                   fill="none"
-                  stroke={gold ? "#F59E0B" : "#CC0000"}
+                  stroke={tier.stroke}
                   strokeWidth="3.5"
                   strokeLinecap="round"
                   strokeDasharray={circ}
                   initial={{ strokeDashoffset: circ }}
                   animate={{ strokeDashoffset: offset }}
                   transition={{ duration: 1.2, ease: "easeOut" }}
-                  style={{
-                    filter: gold
-                      ? "drop-shadow(0 0 3px rgba(245,158,11,0.6))"
-                      : "drop-shadow(0 0 2px rgba(204,0,0,0.35))",
-                  }}
+                  style={{ filter: `drop-shadow(0 0 ${gold ? 3 : 2}px ${tier.glow})` }}
                 />
               </svg>
               <div className="absolute flex flex-col items-center justify-center">
                 {gold ? (
                   <span className="text-[9px] leading-none">🏆</span>
                 ) : (
-                  <span className="text-[10px] font-extrabold leading-none font-display text-primary">
+                  <span
+                    className="text-[10px] font-extrabold leading-none font-display"
+                    style={{ color: tier.text }}
+                  >
                     {score}
                   </span>
                 )}

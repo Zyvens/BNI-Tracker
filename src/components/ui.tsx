@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 import LogoutButton from "@/components/LogoutButton";
+import { scoreSemaforoStatus } from "@/lib/engine";
 
 export const STATUS_COLORS = {
   green: { color: "#22C55E", bg: "#F0FDF4", border: "#D1FAE5", emoji: "🟢", label: "Meta atingida ✓" },
@@ -27,15 +28,25 @@ export const stagger = {
   visible: { transition: { staggerChildren: 0.07 } },
 };
 
-// Anel grande de pontuação (dashboard)
+// Cores do anel por faixa do semáforo (mesma regra de scoreSemaforoStatus): >=100
+// ganha o tratamento especial "Clube 100" (dourado, com brilho); 70-99 verde;
+// 40-69 amarelo; <40 vermelho — nunca mais um vermelho binário só "abaixo de 100".
+const RING_TIERS = {
+  gold: { stroke: "#F59E0B", track: "#FEF3C7", text: "#D97706", glow: "rgba(245,158,11,0.7)", textGlow: "rgba(245,158,11,0.4)" },
+  green: { stroke: "#22C55E", track: "#DCFCE7", text: "#16A34A", glow: "rgba(34,197,94,0.6)", textGlow: "rgba(34,197,94,0.35)" },
+  yellow: { stroke: "#F59E0B", track: "#FEF3C7", text: "#D97706", glow: "rgba(245,158,11,0.6)", textGlow: "rgba(245,158,11,0.35)" },
+  red: { stroke: "#CC0000", track: "#F0E0E0", text: "#CC0000", glow: "rgba(204,0,0,0.4)", textGlow: "rgba(204,0,0,0.2)" },
+} as const;
+
+// Anel grande de pontuação (dashboard). Segue as mesmas faixas de cor do semáforo
+// usadas no resto do app (ver scoreSemaforoStatus em src/lib/engine.ts).
 export function ScoreRing({ score, max = 100 }: { score: number; max?: number }) {
   const r = 52;
   const circ = 2 * Math.PI * r;
   const pct = Math.min(score / max, 1);
   const offset = circ - pct * circ;
   const gold = score >= max;
-  const stroke = gold ? "#F59E0B" : "#CC0000";
-  const track = gold ? "#FEF3C7" : "#F0E0E0";
+  const tier = RING_TIERS[gold ? "gold" : scoreSemaforoStatus(score)];
 
   return (
     <div className="relative flex items-center justify-center w-36 h-36">
@@ -48,24 +59,20 @@ export function ScoreRing({ score, max = 100 }: { score: number; max?: number })
         />
       )}
       <svg width="144" height="144" className="-rotate-90">
-        <circle cx="72" cy="72" r={r} fill="none" stroke={track} strokeWidth="10" />
+        <circle cx="72" cy="72" r={r} fill="none" stroke={tier.track} strokeWidth="10" />
         <motion.circle
           cx="72"
           cy="72"
           r={r}
           fill="none"
-          stroke={stroke}
+          stroke={tier.stroke}
           strokeWidth="10"
           strokeLinecap="round"
           strokeDasharray={circ}
           initial={{ strokeDashoffset: circ }}
           animate={{ strokeDashoffset: offset }}
           transition={{ duration: 1.2, ease: "easeOut" }}
-          style={{
-            filter: gold
-              ? "drop-shadow(0 0 6px rgba(245,158,11,0.7))"
-              : "drop-shadow(0 0 4px rgba(204,0,0,0.4))",
-          }}
+          style={{ filter: `drop-shadow(0 0 ${gold ? 6 : 4}px ${tier.glow})` }}
         />
       </svg>
       <div className="absolute flex flex-col items-center">
@@ -80,14 +87,11 @@ export function ScoreRing({ score, max = 100 }: { score: number; max?: number })
         )}
         <span
           className="text-4xl font-extrabold leading-none font-display"
-          style={{
-            color: gold ? "#D97706" : "#CC0000",
-            textShadow: gold ? "0 0 20px rgba(245,158,11,0.4)" : "0 0 12px rgba(204,0,0,0.2)",
-          }}
+          style={{ color: tier.text, textShadow: `0 0 ${gold ? 20 : 12}px ${tier.textGlow}` }}
         >
           {score}
         </span>
-        <span className="text-xs font-medium" style={{ color: gold ? "#D97706" : "#8A8A8E" }}>
+        <span className="text-xs font-medium" style={{ color: gold ? tier.text : "#8A8A8E" }}>
           de {max}
         </span>
       </div>

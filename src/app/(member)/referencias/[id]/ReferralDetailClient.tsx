@@ -14,7 +14,7 @@ import {
   Clock,
 } from "lucide-react";
 import { PageHeader, fmtMoney } from "@/components/ui";
-import { STATUS_LABEL, CONF_LABEL } from "../ReferenciasClient";
+import { STATUS_LABEL, CONF_LABEL, DEAL_CATEGORY_LABEL } from "../ReferenciasClient";
 
 const PIPELINE_STEPS = [
   "recebida",
@@ -50,6 +50,7 @@ type Props = {
     confirmedValue: number | null;
     heardInMeeting: boolean;
     inOfficialSystem: boolean;
+    dealType: string | null;
     logs: { id: string; dataISO: string; tipo: string; texto: string }[];
   };
 };
@@ -218,6 +219,9 @@ export default function ReferralDetailClient({ referral: r }: Props) {
             <div className="flex flex-wrap gap-1.5 mt-3">
               {r.heardInMeeting && <Tag label="Apresentado em reunião" />}
               {r.inOfficialSystem && <Tag label="Lançado no sistema oficial" />}
+              {r.dealType && DEAL_CATEGORY_LABEL[r.dealType] && (
+                <Tag label={DEAL_CATEGORY_LABEL[r.dealType].label} color={DEAL_CATEGORY_LABEL[r.dealType].color} />
+              )}
             </div>
           </div>
         )}
@@ -286,6 +290,7 @@ export default function ReferralDetailClient({ referral: r }: Props) {
         {sheet === "declarar" && (
           <ValueSheet
             title="Declarar valor recebido"
+            defaultDealType={r.dealType}
             onClose={() => setSheet(null)}
             onSubmit={(valor, extras) =>
               patch({
@@ -337,9 +342,14 @@ function Info({ label, value, highlight }: { label: string; value: string; highl
   );
 }
 
-function Tag({ label }: { label: string }) {
+function Tag({ label, color }: { label: string; color?: string }) {
   return (
-    <span className="px-2 py-0.5 rounded-full bg-background text-[10px] font-bold text-text-muted">{label}</span>
+    <span
+      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${color ? "" : "bg-background text-text-muted"}`}
+      style={color ? { color, backgroundColor: color + "1A" } : undefined}
+    >
+      {label}
+    </span>
   );
 }
 
@@ -375,17 +385,23 @@ function SheetShell({ title, onClose, children }: { title: string; onClose: () =
 
 function ValueSheet({
   title,
+  defaultDealType,
   onClose,
   onSubmit,
 }: {
   title: string;
+  defaultDealType: string | null;
   onClose: () => void;
-  onSubmit: (valor: number, extras: { heardInMeeting: boolean; inOfficialSystem: boolean; receivedISO: string }) => void;
+  onSubmit: (
+    valor: number,
+    extras: { heardInMeeting: boolean; inOfficialSystem: boolean; receivedISO: string; dealType: string }
+  ) => void;
 }) {
   const [valor, setValor] = useState("");
   const [receivedISO, setReceivedISO] = useState(new Date().toISOString().slice(0, 10));
   const [heard, setHeard] = useState(false);
   const [official, setOfficial] = useState(false);
+  const [dealType, setDealType] = useState(defaultDealType ?? "real");
 
   return (
     <SheetShell title={title} onClose={onClose}>
@@ -408,6 +424,29 @@ function ValueSheet({
         <label className="text-[12px] font-bold uppercase tracking-wider text-text-muted mb-2 block">Data do recebimento</label>
         <input type="date" className="w-full bg-background rounded-xl px-3.5 py-3 text-[13px] font-semibold outline-none" value={receivedISO} onChange={(e) => setReceivedISO(e.target.value)} />
       </div>
+      <div>
+        <label className="text-[12px] font-bold uppercase tracking-wider text-text-muted mb-2 block">Categoria do negócio</label>
+        <div className="grid grid-cols-3 gap-2">
+          {(["real", "parceria", "permuta"] as const).map((k) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setDealType(k)}
+              className="h-11 rounded-xl text-[11px] font-bold touch-manipulation border-2 transition-colors"
+              style={{
+                backgroundColor: dealType === k ? DEAL_CATEGORY_LABEL[k].color + "1A" : "#F5F5F7",
+                borderColor: dealType === k ? DEAL_CATEGORY_LABEL[k].color : "transparent",
+                color: dealType === k ? DEAL_CATEGORY_LABEL[k].color : "#8A8A8E",
+              }}
+            >
+              {DEAL_CATEGORY_LABEL[k].label}
+            </button>
+          ))}
+        </div>
+        <p className="text-[10px] text-text-muted mt-1.5">
+          Real: negócio genuíno independente · Parceria: por acordo de parceria · Permuta: via clube de permuta.
+        </p>
+      </div>
       <label className="flex items-center gap-2.5 text-[13px] font-semibold text-text-main">
         <input type="checkbox" checked={heard} onChange={(e) => setHeard(e.target.checked)} className="w-4 h-4 accent-[#CC0000]" />
         Vou apresentar/apresentei na reunião
@@ -422,7 +461,14 @@ function ValueSheet({
         </motion.button>
         <motion.button
           whileTap={{ scale: 0.96 }}
-          onClick={() => onSubmit(parseFloat(valor.replace(/\./g, "").replace(",", ".")) || 0, { heardInMeeting: heard, inOfficialSystem: official, receivedISO })}
+          onClick={() =>
+            onSubmit(parseFloat(valor.replace(/\./g, "").replace(",", ".")) || 0, {
+              heardInMeeting: heard,
+              inOfficialSystem: official,
+              receivedISO,
+              dealType,
+            })
+          }
           className="flex-1 h-12 rounded-2xl bg-primary flex items-center justify-center touch-manipulation"
         >
           <span className="text-white font-bold text-[14px]">Declarar</span>

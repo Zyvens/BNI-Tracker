@@ -4,8 +4,17 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, X, UserPlus, Send, Inbox, ChevronRight } from "lucide-react";
+import { Plus, X, UserPlus, Send, Inbox, ChevronRight, PieChart as PieChartIcon, Handshake, Sparkles } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { PageHeader, fmtMoney, fadeUp, stagger } from "@/components/ui";
+
+// Categoria do negócio fechado — declarada pelo beneficiado ao confirmar o valor recebido.
+export const DEAL_CATEGORY_LABEL: Record<string, { label: string; color: string }> = {
+  real: { label: "Negócio real", color: "#16A34A" },
+  parceria: { label: "Parceria", color: "#2563EB" },
+  permuta: { label: "Clube de permuta", color: "#D97706" },
+};
+const DEAL_CATEGORY_UNSET = { label: "Não categorizado", color: "#9CA3AF" };
 
 export const STATUS_LABEL: Record<string, { label: string; color: string; bg: string }> = {
   enviada: { label: "Enviada", color: "#2563EB", bg: "#EFF6FF" },
@@ -38,6 +47,7 @@ type Ref = {
   contactName: string;
   company: string | null;
   otherName: string;
+  otherId: string | null;
   dataISO: string;
   estimatedValue: number;
   declaredValue: number | null;
@@ -45,6 +55,7 @@ type Ref = {
   status: string;
   confirmationStatus: string;
   origem: string;
+  dealType: string | null;
 };
 
 type Props = {
@@ -72,6 +83,27 @@ export default function ReferenciasClient(p: Props) {
     return { total: arr.length, fechadas: fechadas.length, valor, emAndamento: emAndamento.length };
   }, [aba, p.recebidas, p.dadas]);
 
+  // Quanto do resultado fechado é orgânico (real) vs. combinado (parceria/permuta) —
+  // só faz sentido no recorte "recebidas": é o próprio membro fechando negócio.
+  const categorias = useMemo(() => {
+    const fechadas = p.recebidas.filter((r) => r.status === "fechada");
+    const counts: Record<string, number> = { real: 0, parceria: 0, permuta: 0, indefinido: 0 };
+    for (const r of fechadas) {
+      counts[r.dealType && counts[r.dealType] !== undefined ? r.dealType : "indefinido"]++;
+    }
+    const total = fechadas.length;
+    const data = (["real", "parceria", "permuta", "indefinido"] as const)
+      .filter((k) => counts[k] > 0)
+      .map((k) => ({
+        key: k,
+        label: k === "indefinido" ? DEAL_CATEGORY_UNSET.label : DEAL_CATEGORY_LABEL[k].label,
+        color: k === "indefinido" ? DEAL_CATEGORY_UNSET.color : DEAL_CATEGORY_LABEL[k].color,
+        value: counts[k],
+        pct: total > 0 ? Math.round((counts[k] / total) * 100) : 0,
+      }));
+    return { total, data };
+  }, [p.recebidas]);
+
   return (
     <div className="flex flex-col">
       <PageHeader
@@ -79,6 +111,16 @@ export default function ReferenciasClient(p: Props) {
         subtitle="CRM e gestão de valor"
         right={
           <div className="flex items-center gap-2">
+            <Link href="/possibilidades">
+              <motion.div whileTap={{ scale: 0.9 }} className="w-9 h-9 rounded-full bg-background flex items-center justify-center touch-manipulation">
+                <Sparkles size={16} className="text-text-main" strokeWidth={2} />
+              </motion.div>
+            </Link>
+            <Link href="/parceiros">
+              <motion.div whileTap={{ scale: 0.9 }} className="w-9 h-9 rounded-full bg-background flex items-center justify-center touch-manipulation">
+                <Handshake size={16} className="text-text-main" strokeWidth={2} />
+              </motion.div>
+            </Link>
             <Link href="/convidados">
               <motion.div whileTap={{ scale: 0.9 }} className="w-9 h-9 rounded-full bg-background flex items-center justify-center touch-manipulation">
                 <UserPlus size={16} className="text-text-main" strokeWidth={2} />
@@ -145,6 +187,57 @@ export default function ReferenciasClient(p: Props) {
           </motion.div>
         </motion.div>
 
+        {/* Categorização dos negócios fechados: real vs. combinado */}
+        {aba === "recebidas" && categorias.total > 0 && (
+          <motion.div initial="hidden" animate="visible" variants={stagger}>
+            <motion.div variants={fadeUp} className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-xl bg-background flex items-center justify-center">
+                  <PieChartIcon size={15} className="text-text-main" strokeWidth={2} />
+                </div>
+                <div>
+                  <p className="text-[13px] font-extrabold text-text-main font-display">Origem do resultado fechado</p>
+                  <p className="text-[10px] text-text-muted">Quanto é orgânico vs. combinado (parceria/permuta)</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="w-[104px] h-[104px] flex-shrink-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={categorias.data}
+                        dataKey="value"
+                        nameKey="label"
+                        innerRadius={32}
+                        outerRadius={50}
+                        paddingAngle={categorias.data.length > 1 ? 3 : 0}
+                        stroke="none"
+                      >
+                        {categorias.data.map((d) => (
+                          <Cell key={d.key} fill={d.color} />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex-1 space-y-1.5">
+                  {categorias.data.map((d) => (
+                    <div key={d.key} className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
+                        <span className="text-[11px] font-semibold text-text-main truncate">{d.label}</span>
+                      </div>
+                      <span className="text-[11px] font-extrabold font-display flex-shrink-0" style={{ color: d.color }}>
+                        {d.pct}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
         {/* Lista */}
         <div className="space-y-2.5">
           {list.length === 0 && (
@@ -159,18 +252,30 @@ export default function ReferenciasClient(p: Props) {
             const conf = CONF_LABEL[r.confirmationStatus];
             const valor = r.confirmedValue ?? r.declaredValue ?? r.estimatedValue;
             return (
-              <Link key={r.id} href={`/referencias/${r.id}`}>
-                <motion.div
-                  whileTap={{ scale: 0.98 }}
-                  className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4 mb-2.5 touch-manipulation"
-                >
+              <motion.div
+                key={r.id}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => router.push(`/referencias/${r.id}`)}
+                className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4 mb-2.5 touch-manipulation cursor-pointer"
+              >
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <p className="text-[14px] font-extrabold text-text-main font-display truncate">
                         {r.contactName}
                       </p>
                       <p className="text-[11px] text-text-muted truncate">
-                        {r.direcao === "recebida" ? "De" : "Para"}: {r.otherName}
+                        {r.direcao === "recebida" ? "De" : "Para"}:{" "}
+                        {r.otherId ? (
+                          <Link
+                            href={`/referencias/contato/${r.otherId}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="underline underline-offset-2 decoration-gray-300"
+                          >
+                            {r.otherName}
+                          </Link>
+                        ) : (
+                          r.otherName
+                        )}
                         {r.company ? ` · ${r.company}` : ""}
                       </p>
                     </div>
@@ -195,9 +300,16 @@ export default function ReferenciasClient(p: Props) {
                         {conf.label}
                       </span>
                     )}
+                    {r.dealType && DEAL_CATEGORY_LABEL[r.dealType] && (
+                      <span
+                        className="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                        style={{ color: DEAL_CATEGORY_LABEL[r.dealType].color, backgroundColor: DEAL_CATEGORY_LABEL[r.dealType].color + "1A" }}
+                      >
+                        {DEAL_CATEGORY_LABEL[r.dealType].label}
+                      </span>
+                    )}
                   </div>
-                </motion.div>
-              </Link>
+              </motion.div>
             );
           })}
         </div>

@@ -4,11 +4,12 @@ import { motion } from "framer-motion";
 import { Trophy, ShieldPlus } from "lucide-react";
 import { PageHeader, ScoreRing, STATUS_COLORS, StatusKey, fmtMoney, fadeUp, stagger } from "@/components/ui";
 
+// Semáforo de urgência por margem em meses: vermelho = zero margem (aja agora),
+// amarelo = margem só até o mês seguinte, azul = 3+ meses de margem de segurança.
 const URGENCY_STYLE: Record<string, { bg: string; border: string; color: string; dot: string; tag: string }> = {
   critical: { bg: "#FFF1F1", border: "#FECACA", color: "#CC0000", dot: "🔴", tag: "Ação imediata" },
-  urgent: { bg: "#FFFBEB", border: "#FDE68A", color: "#D97706", dot: "🟡", tag: "Urgente" },
-  watch: { bg: "#EFF6FF", border: "#BFDBFE", color: "#2563EB", dot: "🔵", tag: "Monitorar" },
-  safe: { bg: "#F0FDF4", border: "#BBF7D0", color: "#16A34A", dot: "🟢", tag: "Seguro" },
+  urgent: { bg: "#FFFBEB", border: "#FDE68A", color: "#D97706", dot: "🟡", tag: "Atenção" },
+  watch: { bg: "#EFF6FF", border: "#BFDBFE", color: "#2563EB", dot: "🔵", tag: "Margem segura" },
 };
 
 type Action = {
@@ -106,24 +107,27 @@ export default function Rumo100Client(p: Props) {
             >
               <div className="px-4 py-3.5">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[14px]">{st.dot}</span>
-                    <span className="text-[14px] font-extrabold font-display" style={{ color: st.color }}>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-[14px] flex-shrink-0">{st.dot}</span>
+                    <span className="text-[14px] font-extrabold font-display truncate" style={{ color: st.color }}>
                       {a.label}
                     </span>
+                    {a.daysUntilDrop !== null && (
+                      <span
+                        className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: st.color + "22", color: st.color }}
+                      >
+                        ⏳ {a.dropMonthLabel} · {a.daysUntilDrop}d
+                      </span>
+                    )}
                   </div>
-                  <span className="text-[12px] font-bold" style={{ color: st.color }}>
+                  <span className="text-[12px] font-bold flex-shrink-0" style={{ color: st.color }}>
                     {fmt(a.currentValue)} / {fmt(a.goal)}
                   </span>
                 </div>
                 <p className="text-[12px] leading-relaxed font-semibold mt-1.5" style={{ color: st.color }}>
                   {a.actionMessage}
                 </p>
-                {a.daysUntilDrop !== null && a.urgency !== "safe" && (
-                  <p className="text-[10px] font-bold mt-1.5 opacity-70" style={{ color: st.color }}>
-                    ⏳ {a.daysUntilDrop} dias até o impacto ({a.dropMonthLabel})
-                  </p>
-                )}
               </div>
             </motion.div>
           );

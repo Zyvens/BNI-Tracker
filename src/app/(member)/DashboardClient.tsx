@@ -40,11 +40,12 @@ const KPI_ICONS: Record<string, any> = {
   substituicoes: Repeat,
 };
 
+// Semáforo de urgência por margem em meses: vermelho = zero margem (aja agora),
+// amarelo = margem só até o mês seguinte, azul = 3+ meses de margem de segurança.
 const URGENCY_STYLE: Record<string, { bg: string; border: string; color: string; dot: string }> = {
   critical: { bg: "#FFF1F1", border: "#FECACA", color: "#CC0000", dot: "🔴" },
   urgent: { bg: "#FFFBEB", border: "#FDE68A", color: "#D97706", dot: "🟡" },
   watch: { bg: "#EFF6FF", border: "#BFDBFE", color: "#2563EB", dot: "🔵" },
-  safe: { bg: "#F0FDF4", border: "#BBF7D0", color: "#16A34A", dot: "🟢" },
 };
 
 type Kpi = {
@@ -160,22 +161,49 @@ export default function DashboardClient(p: Props) {
         {/* Card principal: pontuação */}
         <motion.div
           variants={fadeUp}
-          className="bg-surface rounded-3xl shadow-sm border border-gray-100 overflow-hidden"
+          className="bg-surface rounded-3xl overflow-hidden relative"
+          style={
+            gold
+              ? { border: "1px solid #FBBF2455", boxShadow: "0 0 0 1px #FBBF2422, 0 8px 28px -8px rgba(245,158,11,0.45)" }
+              : { border: "1px solid #F3F4F6", boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }
+          }
         >
           <div
-            className="h-1.5 w-full"
-            style={{ background: gold ? "#F59E0B" : "linear-gradient(90deg, #CC0000, #F59E0B)" }}
-          />
+            className="h-1.5 w-full relative overflow-hidden"
+            style={{ background: gold ? "linear-gradient(90deg, #FDE68A, #F59E0B, #FBBF24, #F59E0B, #FDE68A)" : "linear-gradient(90deg, #CC0000, #F59E0B)" }}
+          >
+            {gold && (
+              <motion.div
+                className="absolute inset-y-0 w-1/3"
+                style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent)" }}
+                animate={{ x: ["-100%", "300%"] }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.6 }}
+              />
+            )}
+          </div>
           <div className="p-5 flex items-center gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
-                <ShieldCheck size={14} color={gold ? "#F59E0B" : "#CC0000"} strokeWidth={2} />
-                <span
-                  className="text-[10px] font-bold uppercase tracking-wider"
-                  style={{ color: gold ? "#F59E0B" : "#CC0000" }}
-                >
-                  {gold ? "Clube 100 🏆" : "Pontuação Semestral"}
-                </span>
+                {gold ? (
+                  <motion.div
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                    style={{ background: "linear-gradient(90deg, #FEF3C7, #FDE68A)" }}
+                    animate={{ boxShadow: ["0 0 0px rgba(245,158,11,0)", "0 0 10px rgba(245,158,11,0.55)", "0 0 0px rgba(245,158,11,0)"] }}
+                    transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <ShieldCheck size={13} color="#B45309" strokeWidth={2.4} />
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider" style={{ color: "#92400E" }}>
+                      Clube 100 🏆
+                    </span>
+                  </motion.div>
+                ) : (
+                  <>
+                    <ShieldCheck size={14} color="#CC0000" strokeWidth={2} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#CC0000" }}>
+                      Pontuação Semestral
+                    </span>
+                  </>
+                )}
               </div>
               <p className="text-[15px] font-extrabold text-text-main leading-tight mb-1 font-display">
                 {headline}

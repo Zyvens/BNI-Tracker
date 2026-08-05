@@ -39,6 +39,93 @@ model Member {
   guests             Guest[]
   oneToOnes          OneToOne[] @relation("Owner")
   oneToOnesWith      OneToOne[] @relation("With")
+  recurringPartners  RecurringPartner[]
+  testimonialsGiven    Testimonial[] @relation("TestimonialFrom")
+  testimonialsReceived Testimonial[] @relation("TestimonialTo")
+  possibilities        Possibility[]
+  voiceNotes           VoiceNote[]
+  weeklyUpdates        WeeklyUpdate[]
+}
+
+// Atualização semanal textual/estruturada — log complementar aos números do
+// registro semanal (WeekEntry), exibido na área de relatórios (/semanas).
+model WeeklyUpdate {
+  id        String   @id @default(uuid())
+  memberId  String
+  weekISO   String   // segunda-feira da semana de referência (yyyy-mm-dd)
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, weekISO])
+}
+
+// Nota de voz rápida (FAB de gravação), vinculada opcionalmente a um contato/registro.
+// v1: áudio salvo como data URL base64 direto no banco (sem storage de blob dedicado).
+model VoiceNote {
+  id          String   @id @default(uuid())
+  memberId    String
+  contactName String?
+  audioData   String?  @db.Text
+  durationSec Int?
+  text        String?
+  createdAt   DateTime @default(now())
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+}
+
+// "Criando uma possibilidade" — pipeline privado de pré-referência. Só o autor
+// enxerga: NUNCA é exposta nas APIs de Referral nem para o outro membro/indicado,
+// justamente porque ainda não virou uma referência oficial no sistema.
+model Possibility {
+  id          String   @id @default(uuid())
+  memberId    String
+  contactName String
+  company     String?
+  notes       String?
+  status      String   @default("explorando") // explorando | aquecendo | pronta_para_indicar | descartada
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+}
+
+// Testemunho nominal entre dois membros — registro complementar de relacionamento
+// (não substitui a métrica oficial de testemunhos do Semáforo, que é apenas uma
+// contagem sem destinatário). Usado no histórico detalhado por contato.
+model Testimonial {
+  id        String   @id @default(uuid())
+  fromId    String
+  toId      String
+  dataISO   String
+  notes     String?
+  createdAt DateTime @default(now())
+
+  from Member @relation("TestimonialFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to   Member @relation("TestimonialTo", fields: [toId], references: [id], onDelete: Cascade)
+}
+
+// Parceiro recorrente (ex: alguém de outro grupo que manda indicação todo mês).
+// Casado por nome com Referral.giverName/receiverName (origem externa, sem cadastro
+// de Member) para acumular o valor histórico gerado e disparar o lembrete mensal
+// de agradecimento (ver notifications.ts).
+model RecurringPartner {
+  id            String    @id @default(uuid())
+  memberId      String
+  name          String
+  company       String?
+  phone         String?
+  notes         String?
+  active        Boolean   @default(true)
+  lastThankedAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, name])
 }
 
 // Relatório oficial mensal (PDF Semáforos) — mesmo parser do BNI Performance Tool
@@ -151,7 +238,7 @@ model Referral {
   declaredValue     Float?   // valor declarado pelo beneficiado
   declaredISO       String?
   receivedISO       String?  // data de recebimento do valor
-  dealType          String?  // tipo de negócio
+  dealType          String?  // categoria do negócio fechado: real | parceria | permuta
   inOfficialSystem  Boolean  @default(false) // lançado no sistema oficial (ONF)
   heardInMeeting    Boolean  @default(false) // apresentado em reunião
   confirmationStatus String  @default("nao_aplicavel")

@@ -38,6 +38,7 @@ export default async function ReferralDetailPage({ params }: { params: { id: str
         declaredISO: r.declaredISO,
         confirmationStatus: r.confirmationStatus,
         confirmedValue: r.confirmedValue,
+        dealType: r.dealType,
         heardInMeeting: r.heardInMeeting,
         inOfficialSystem: r.inOfficialSystem,
         logs: r.logs.map((l) => ({ id: l.id, dataISO: l.dataISO, tipo: l.tipo, texto: l.texto })),

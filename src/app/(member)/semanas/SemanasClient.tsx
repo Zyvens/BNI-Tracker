@@ -1,10 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Plus, Check, UserCheck, X, CalendarDays } from "lucide-react";
+import { Plus, Check, UserCheck, X, CalendarDays, NotebookPen } from "lucide-react";
 import { fmtMoney } from "@/components/ui";
 import LogoutButton from "@/components/LogoutButton";
+
+type WeeklyUpdate = { weekISO: string; text: string; updatedAt: string };
 
 type Entry = {
   id: string;
@@ -22,6 +26,8 @@ type Entry = {
 };
 
 type Props = {
+  currentWeekISO: string;
+  weeklyUpdates: WeeklyUpdate[];
   windowLabel: string;
   totals: {
     reunioes1a1: number;
@@ -46,6 +52,30 @@ const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, tra
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } };
 
 export default function SemanasClient(p: Props) {
+  const router = useRouter();
+  const currentUpdate = p.weeklyUpdates.find((w) => w.weekISO === p.currentWeekISO) ?? null;
+  const [draft, setDraft] = useState(currentUpdate?.text ?? "");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const pastUpdates = p.weeklyUpdates.filter((w) => w.weekISO !== p.currentWeekISO);
+
+  async function saveUpdate() {
+    if (!draft.trim()) return;
+    setSaving(true);
+    setSaved(false);
+    try {
+      await fetch("/api/weekly-updates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ weekISO: p.currentWeekISO, text: draft.trim() }),
+      });
+      setSaved(true);
+      router.refresh();
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <div className="flex flex-col">
       {/* Header */}
@@ -111,6 +141,56 @@ export default function SemanasClient(p: Props) {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Atualização semanal */}
+        <div className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-xl bg-[#F5F3FF] flex items-center justify-center">
+              <NotebookPen size={15} color="#8B5CF6" />
+            </div>
+            <div>
+              <p className="text-[13px] font-extrabold text-text-main font-display">Atualização da Semana</p>
+              <p className="text-[10px] text-text-muted">Um resumo em texto, além dos números</p>
+            </div>
+          </div>
+          <textarea
+            rows={3}
+            className="w-full bg-background rounded-xl px-3.5 py-3 text-[13px] font-medium outline-none border-2 border-transparent focus:border-primary transition-colors resize-none"
+            placeholder="O que aconteceu essa semana? Próximos passos, contatos importantes, aprendizados..."
+            value={draft}
+            onChange={(e) => {
+              setDraft(e.target.value);
+              setSaved(false);
+            }}
+          />
+          <div className="flex items-center justify-between mt-2.5">
+            <span className="text-[10px] text-text-muted">
+              {saved ? "Salvo ✓" : currentUpdate ? `Última edição: ${new Date(currentUpdate.updatedAt).toLocaleDateString("pt-BR")}` : "Ainda sem atualização esta semana"}
+            </span>
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              disabled={saving || !draft.trim()}
+              onClick={saveUpdate}
+              className="px-4 h-9 rounded-full bg-primary flex items-center justify-center touch-manipulation disabled:opacity-50"
+            >
+              <span className="text-white font-bold text-[12px]">{saving ? "Salvando..." : "Salvar"}</span>
+            </motion.button>
+          </div>
+
+          {pastUpdates.length > 0 && (
+            <div className="mt-4 pt-3 border-t border-gray-50 space-y-2.5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">Semanas anteriores</p>
+              {pastUpdates.slice(0, 8).map((w) => (
+                <div key={w.weekISO} className="bg-background rounded-xl p-3">
+                  <p className="text-[10px] font-bold text-text-muted mb-1">
+                    Semana de {new Date(w.weekISO + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+                  </p>
+                  <p className="text-[12px] text-text-main leading-relaxed whitespace-pre-wrap">{w.text}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Histórico */}

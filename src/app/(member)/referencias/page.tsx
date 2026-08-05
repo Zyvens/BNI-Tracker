@@ -23,6 +23,7 @@ export default async function ReferenciasPage() {
       direcao === "dada"
         ? (r as any).receiver?.name ?? r.receiverName ?? "—"
         : (r as any).giver?.name ?? r.giverName ?? "—",
+    otherId: direcao === "dada" ? r.receiverId : r.giverId,
     dataISO: r.dataISO,
     estimatedValue: r.estimatedValue,
     declaredValue: r.declaredValue,
@@ -30,6 +31,7 @@ export default async function ReferenciasPage() {
     status: r.status,
     confirmationStatus: r.confirmationStatus,
     origem: r.origem,
+    dealType: (r as any).dealType ?? null,
   });
 
   return (

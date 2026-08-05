@@ -80,6 +80,22 @@ export async function generateNotifications(userId: string, snap: MemberSnapshot
     });
   }
 
+  // Lembrete mensal para agradecer parceiros recorrentes (indicadores externos frequentes)
+  if (snap.member) {
+    const partners = await prisma.recurringPartner.findMany({
+      where: { memberId: snap.member.id, active: true },
+    });
+    for (const partner of partners) {
+      drafts.push({
+        tipo: "info",
+        title: `Agradeça ${partner.name} pelas indicações`,
+        body: `${partner.name} é um parceiro recorrente. Um agradecimento mantém a relação forte.`,
+        link: "/parceiros",
+        dedupeKey: `thank-partner:${partner.id}:${period}`,
+      });
+    }
+  }
+
   if (snap.outlook.marginPoints >= 0 && snap.outlook.marginPoints < snap.goals.safetyMargin) {
     drafts.push({
       tipo: "info",

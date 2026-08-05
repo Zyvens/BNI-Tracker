@@ -3,42 +3,53 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, X, ArrowLeft, UserPlus } from "lucide-react";
+import { Plus, X, ArrowLeft, UserPlus, ChevronDown } from "lucide-react";
 import { PageHeader, fadeUp, stagger } from "@/components/ui";
 
-type Guest = {
+type Visit = {
   id: string;
-  name: string;
-  company: string | null;
-  category: string | null;
-  phone: string | null;
   inviteISO: string;
   meetingISO: string | null;
   confirmed: boolean;
   attended: boolean;
-  interested: boolean;
   becameMember: boolean;
   notes: string | null;
+  visitOrder: number | null;
+  semesterKey: string | null;
+  semesterLabel: string | null;
+  overLimit: boolean;
 };
 
-export default function ConvidadosClient({ guests }: { guests: Guest[] }) {
+type Person = {
+  key: string;
+  name: string;
+  company: string | null;
+  category: string | null;
+  totalVisits: number;
+  currentSemesterCount: number;
+  remainingThisSemester: number;
+  limitReached: boolean;
+  visits: Visit[];
+};
+
+export default function ConvidadosClient({ people, visitsPerSemester }: { people: Person[]; visitsPerSemester: number }) {
   const router = useRouter();
   const [showNew, setShowNew] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [openKey, setOpenKey] = useState<string | null>(null);
 
-  const total = guests.length;
-  const compareceram = guests.filter((g) => g.attended).length;
-  const converteram = guests.filter((g) => g.becameMember).length;
-  const taxaComp = total > 0 ? Math.round((compareceram / total) * 100) : 0;
-  const taxaConv = compareceram > 0 ? Math.round((converteram / compareceram) * 100) : 0;
+  const total = people.reduce((s, p) => s + p.totalVisits, 0);
+  const totalPessoas = people.length;
+  const converteram = people.filter((p) => p.visits.some((v) => v.becameMember)).length;
+  const taxaComp = totalPessoas > 0 ? Math.round((people.filter((p) => p.totalVisits > 0).length / totalPessoas) * 100) : 0;
 
-  async function toggle(g: Guest, field: "confirmed" | "attended" | "becameMember") {
+  async function toggle(id: string, field: "confirmed" | "attended" | "becameMember", current: boolean) {
     setBusy(true);
     try {
-      await fetch(`/api/guests/${g.id}`, {
+      await fetch(`/api/guests/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [field]: !g[field] }),
+        body: JSON.stringify({ [field]: !current }),
       });
       router.refresh();
     } finally {
@@ -73,10 +84,10 @@ export default function ConvidadosClient({ guests }: { guests: Guest[] }) {
         {/* Estatísticas */}
         <motion.div variants={fadeUp} className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4 grid grid-cols-4 gap-2">
           {[
-            { label: "Convidados", value: `${total}`, color: "#1A1A1A" },
-            { label: "Compareceram", value: `${compareceram}`, color: "#16A34A" },
-            { label: "Taxa comp.", value: `${taxaComp}%`, color: taxaComp >= 60 ? "#16A34A" : "#D97706" },
-            { label: "Conversão", value: `${taxaConv}%`, color: "#8B5CF6" },
+            { label: "Pessoas", value: `${totalPessoas}`, color: "#1A1A1A" },
+            { label: "Visitas totais", value: `${total}`, color: "#2563EB" },
+            { label: "Compareceram", value: `${taxaComp}%`, color: taxaComp >= 60 ? "#16A34A" : "#D97706" },
+            { label: "Viraram membro", value: `${converteram}`, color: "#8B5CF6" },
           ].map((s) => (
             <div key={s.label} className="flex flex-col items-center">
               <span className="text-[16px] font-extrabold font-display" style={{ color: s.color }}>{s.value}</span>
@@ -85,7 +96,13 @@ export default function ConvidadosClient({ guests }: { guests: Guest[] }) {
           ))}
         </motion.div>
 
-        {guests.length === 0 && (
+        <motion.div variants={fadeUp} className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-2xl px-3.5 py-2.5">
+          <p className="text-[11px] font-semibold text-[#2563EB]">
+            Regra do capítulo: cada convidado pode visitar até {visitsPerSemester}x por semestre. No semestre seguinte, o limite libera de novo.
+          </p>
+        </motion.div>
+
+        {people.length === 0 && (
           <motion.div variants={fadeUp} className="bg-surface rounded-2xl border border-gray-100 p-8 flex flex-col items-center text-center">
             <UserPlus size={32} className="text-gray-300 mb-2" />
             <p className="text-[14px] font-bold text-text-main font-display">Nenhum convidado registrado</p>
@@ -93,27 +110,80 @@ export default function ConvidadosClient({ guests }: { guests: Guest[] }) {
           </motion.div>
         )}
 
-        {guests.map((g) => (
-          <motion.div key={g.id} variants={fadeUp} className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex-1 min-w-0">
-                <p className="text-[14px] font-extrabold text-text-main font-display truncate">{g.name}</p>
-                <p className="text-[11px] text-text-muted truncate">
-                  {[g.company, g.category].filter(Boolean).join(" · ") || "—"}
-                </p>
-              </div>
-              <span className="text-[10px] text-text-muted flex-shrink-0">
-                Convite: {new Date(g.inviteISO + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              <Pill active={g.confirmed} label="Confirmou" onClick={() => !busy && toggle(g, "confirmed")} />
-              <Pill active={g.attended} label="Compareceu" onClick={() => !busy && toggle(g, "attended")} color="#16A34A" />
-              <Pill active={g.becameMember} label="Virou membro 🎉" onClick={() => !busy && toggle(g, "becameMember")} color="#8B5CF6" />
-            </div>
-            {g.notes && <p className="text-[11px] text-text-muted mt-2">{g.notes}</p>}
-          </motion.div>
-        ))}
+        {people.map((p) => {
+          const open = openKey === p.key;
+          const limitStyle = p.limitReached
+            ? { bg: "#FFF1F1", border: "#FECACA", color: "#CC0000", label: `Limite atingido (${p.currentSemesterCount}/${visitsPerSemester})` }
+            : p.currentSemesterCount > 0
+              ? { bg: "#FFFBEB", border: "#FDE68A", color: "#D97706", label: `${p.currentSemesterCount}/${visitsPerSemester} este semestre` }
+              : { bg: "#F0FDF4", border: "#BBF7D0", color: "#16A34A", label: "Liberado este semestre" };
+          return (
+            <motion.div key={p.key} variants={fadeUp} className="bg-surface rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <button
+                onClick={() => setOpenKey(open ? null : p.key)}
+                className="w-full text-left p-4 touch-manipulation"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-extrabold text-text-main font-display truncate">{p.name}</p>
+                    <p className="text-[11px] text-text-muted truncate">
+                      {[p.company, p.category].filter(Boolean).join(" · ") || "—"} · {p.totalVisits} visita{p.totalVisits === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                  <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <ChevronDown size={16} className="text-gray-300 flex-shrink-0" />
+                  </motion.div>
+                </div>
+                <span
+                  className="inline-block mt-2 px-2.5 py-1 rounded-full text-[10px] font-bold border"
+                  style={{ backgroundColor: limitStyle.bg, borderColor: limitStyle.border, color: limitStyle.color }}
+                >
+                  {limitStyle.label}
+                </span>
+              </button>
+              <AnimatePresence>
+                {open && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-4 pb-4 space-y-2.5 border-t border-gray-50 pt-3">
+                      {p.visits.map((v) => (
+                        <div key={v.id} className="rounded-xl bg-background p-3">
+                          <div className="flex items-center justify-between gap-2 mb-1.5">
+                            <span className="text-[11px] font-bold text-text-main">
+                              {new Date((v.meetingISO ?? v.inviteISO) + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}
+                            </span>
+                            {v.attended && v.visitOrder && (
+                              <span
+                                className="px-2 py-0.5 rounded-full text-[9px] font-bold"
+                                style={{
+                                  color: v.overLimit ? "#CC0000" : "#2563EB",
+                                  backgroundColor: v.overLimit ? "#FFF1F1" : "#EFF6FF",
+                                }}
+                              >
+                                {v.overLimit ? `⚠ ${v.visitOrder}ª do semestre (excede limite)` : `${v.visitOrder}ª do semestre`}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            <Pill active={v.confirmed} label="Confirmou" onClick={() => !busy && toggle(v.id, "confirmed", v.confirmed)} />
+                            <Pill active={v.attended} label="Compareceu" onClick={() => !busy && toggle(v.id, "attended", v.attended)} color="#16A34A" />
+                            <Pill active={v.becameMember} label="Virou membro 🎉" onClick={() => !busy && toggle(v.id, "becameMember", v.becameMember)} color="#8B5CF6" />
+                          </div>
+                          {v.notes && <p className="text-[10px] text-text-muted mt-1.5">{v.notes}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          );
+        })}
       </motion.div>
 
       <AnimatePresence>
@@ -208,6 +278,9 @@ function NewGuestSheet({ onClose, onSaved }: { onClose: () => void; onSaved: () 
           </button>
         </div>
         <div className="px-5 py-4 space-y-3.5 overflow-y-auto">
+          <p className="text-[11px] text-text-muted leading-relaxed">
+            Já convidou essa pessoa antes? Registre de novo com o mesmo nome — o histórico de visitas é agrupado automaticamente.
+          </p>
           <input className={input} placeholder="Nome *" value={name} onChange={(e) => setName(e.target.value)} />
           <div className="grid grid-cols-2 gap-3">
             <input className={input} placeholder="Empresa" value={company} onChange={(e) => setCompany(e.target.value)} />

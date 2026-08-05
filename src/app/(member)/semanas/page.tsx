@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/auth";
 import { getMemberSnapshotCached } from "@/lib/snapshot";
+import { prisma } from "@/lib/prisma";
 import SemanasClient from "./SemanasClient";
 
 export const dynamic = "force-dynamic";
@@ -10,12 +11,31 @@ function dataLabel(iso: string): string {
     .replace(".", "");
 }
 
+// Segunda-feira da semana de referência (início da semana ISO)
+function weekStartISO(d: Date): string {
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diff);
+  return monday.toISOString().slice(0, 10);
+}
+
 export default async function SemanasPage() {
   const session = (await getSession())!;
   const snap = await getMemberSnapshotCached(session.memberId!);
+  const weeklyUpdates = await prisma.weeklyUpdate.findMany({
+    where: { memberId: session.memberId! },
+    orderBy: { weekISO: "desc" },
+  });
+  const currentWeekISO = weekStartISO(new Date());
 
   return (
     <SemanasClient
+      currentWeekISO={currentWeekISO}
+      weeklyUpdates={weeklyUpdates.map((w) => ({
+        weekISO: w.weekISO,
+        text: w.text,
+        updatedAt: w.updatedAt.toISOString(),
+      }))}
       windowLabel={snap.window.label}
       totals={{
         reunioes1a1: snap.current.reunioes1a1,

@@ -142,7 +142,11 @@ export function computeScore(v: KpiValues, ausencias: number, atrasos: number, g
   return Math.min(s, 100);
 }
 
-export type Urgency = "critical" | "urgent" | "watch" | "safe";
+// Semáforo de urgência do Plano de Ação — 3 níveis por margem em MESES, não por
+// indicador isolado: critical (vermelho) = zero margem, precisa agir ainda neste mês;
+// urgent (amarelo) = margem só até o mês seguinte; watch (azul) = 3+ meses de margem
+// de segurança pela frente (inclui o caso de nunca cair dentro da janela de 6 meses).
+export type Urgency = "critical" | "urgent" | "watch";
 
 export type KpiAction = {
   kpi: KpiDef;
@@ -193,19 +197,29 @@ export function computeProjection(
   const KPIS = buildKpis(goals);
   const months: MonthProjection[] = [];
 
-  const windowSum = (endMonth: Date): KpiValues => {
-    const out = emptyValues();
-    for (let i = 0; i < 6; i++) {
-      const m = new Date(endMonth.getFullYear(), endMonth.getMonth() - i, 1);
-      const p = production.get(monthKey(m));
-      if (p) for (const k of Object.keys(out) as KpiId[]) out[k] += p[k];
+  // Projeta a janela móvel ancorada em `currentValues` (o valor real de agora, que já
+  // reflete registros semanais E ajustes rápidos feitos pelo membro no dashboard —
+  // KpiOverride) em vez de reconstruir o total do zero somando `production`. Reconstruir
+  // do zero ignorava qualquer registro que só existisse como ajuste rápido (sem uma
+  // entrada correspondente em `production`), fazendo o "faltam X" não descontar o que
+  // o usuário já havia registrado no período corrente. Aqui só ajustamos o valor atual
+  // pelos meses que saem (mais antigos, saindo da janela) e entram (novos, normalmente
+  // zero, pois ainda não há registros futuros) conforme os meses avançam.
+  const rollingValue = (monthsAhead: number): KpiValues => {
+    const out: KpiValues = { ...currentValues };
+    for (let i = 0; i < monthsAhead; i++) {
+      const leaving = production.get(monthKey(new Date(today.getFullYear(), today.getMonth() - 5 + i, 1)));
+      const entering = production.get(monthKey(new Date(today.getFullYear(), today.getMonth() + 1 + i, 1)));
+      for (const k of Object.keys(out) as KpiId[]) {
+        out[k] = out[k] - (leaving ? leaving[k] : 0) + (entering ? entering[k] : 0);
+      }
     }
     return out;
   };
 
   for (let c = 1; c <= 6; c++) {
     const target = new Date(today.getFullYear(), today.getMonth() + c, 1);
-    const values = windowSum(target);
+    const values = rollingValue(c);
     const belowGoal: string[] = [];
     const nearGoal: string[] = [];
     for (const kpi of KPIS) {
@@ -255,10 +269,15 @@ export function computeProjection(
     const safetyTarget = Math.ceil(kpi.goal * 1.1);
     const safetyExtra = Math.max(safetyTarget - current, 0);
 
+    // Meses de margem até a queda: monthIndex 1 = cai já no mês seguinte (zero margem
+    // agora); monthIndex 2 = margem dura até o mês seguinte; monthIndex >= 3 (ou nenhuma
+    // queda prevista) = 3+ meses de segurança.
     let urgency: Urgency;
     if (isBelow) urgency = "critical";
-    else if (firstDrop) urgency = daysUntilDrop !== null && daysUntilDrop <= 30 ? "urgent" : "watch";
-    else urgency = "safe";
+    else if (!firstDrop) urgency = "watch";
+    else if (firstDrop.monthIndex <= 1) urgency = "critical";
+    else if (firstDrop.monthIndex === 2) urgency = "urgent";
+    else urgency = "watch";
 
     const fmt = (n: number) => (kpi.isCurrency ? `R$ ${n.toLocaleString("pt-BR")}` : `${n}`);
 
@@ -303,14 +322,25 @@ export type StatusCard = {
 export function computeStatusCard(actions: KpiAction[]): StatusCard {
   const critical = actions.filter((a) => a.urgency === "critical");
   const urgent = actions.filter((a) => a.urgency === "urgent");
-  const watch = actions.filter((a) => a.urgency === "watch");
 
   if (critical.length > 0) {
+    // Já abaixo da meta agora — o pior caso dentro do vermelho.
+    const alreadyBelow = critical.filter((a) => a.isAlreadyBelow);
+    if (alreadyBelow.length > 0) {
+      return {
+        status: "red",
+        emoji: "🔴",
+        title: `Atenção! ${alreadyBelow.length} indicador${alreadyBelow.length > 1 ? "es" : ""} abaixo da meta`,
+        subtitle: `${alreadyBelow.map((c) => c.kpi.shortLabel).join(", ")} ${alreadyBelow.length > 1 ? "precisam" : "precisa"} de ação imediata.`,
+      };
+    }
+    // Ainda dentro da meta, mas zero margem: cai já no mês que vem se nada for feito agora.
+    const soonest = critical.reduce((m, d) => ((d.daysUntilDrop ?? 999) < (m.daysUntilDrop ?? 999) ? d : m));
     return {
       status: "red",
       emoji: "🔴",
-      title: `Atenção! ${critical.length} indicador${critical.length > 1 ? "es" : ""} abaixo da meta`,
-      subtitle: `${critical.map((c) => c.kpi.shortLabel).join(", ")} ${critical.length > 1 ? "precisam" : "precisa"} de ação imediata.`,
+      title: `Atenção! Em ${soonest.daysUntilDrop} dias você pode ficar abaixo da meta de ${soonest.kpi.shortLabel}`,
+      subtitle: "Sem margem neste mês — registre ainda agora. Verifique o plano de ação abaixo.",
     };
   }
   if (urgent.length > 0) {
@@ -318,24 +348,15 @@ export function computeStatusCard(actions: KpiAction[]): StatusCard {
     return {
       status: "yellow",
       emoji: "🟡",
-      title: `Atenção! Em ${soonest.daysUntilDrop} dias você pode ficar abaixo da meta de ${soonest.kpi.shortLabel}`,
-      subtitle: "Se nenhum novo registro for feito. Verifique o plano de ação abaixo.",
-    };
-  }
-  if (watch.length > 0) {
-    const soonest = watch.reduce((m, d) => ((d.daysUntilDrop ?? 999) < (m.daysUntilDrop ?? 999) ? d : m));
-    return {
-      status: "yellow",
-      emoji: "🟡",
-      title: `Nenhuma ação urgente. Próxima atenção: ${soonest.kpi.shortLabel}`,
-      subtitle: `Você ficará abaixo da meta de ${soonest.kpi.label} em ${soonest.dropMonthLabel} se nenhum novo registro for feito.`,
+      title: `Atenção! Sua margem de ${soonest.kpi.shortLabel} dura só até o mês que vem`,
+      subtitle: `Se nenhum novo registro for feito, você ficará abaixo da meta em ${soonest.dropMonthLabel}.`,
     };
   }
   return {
     status: "green",
     emoji: "🟢",
     title: "Você está 100% dentro da meta",
-    subtitle: "Todos os indicadores estão seguros nos próximos 6 meses. Continue assim!",
+    subtitle: "Todos os indicadores têm 3 ou mais meses de margem de segurança. Continue assim!",
   };
 }
 

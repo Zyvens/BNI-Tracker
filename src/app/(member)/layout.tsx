@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { getMemberSnapshotCached } from "@/lib/snapshot";
 import { generateNotifications } from "@/lib/notifications";
 import BottomNav from "@/components/BottomNav";
+import VoiceNoteFab from "@/components/VoiceNoteFab";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,7 @@ export default async function MemberLayout({ children }: { children: React.React
   return (
     <div className="flex flex-col min-h-[100dvh] bg-background">
       <div className="flex-1 pb-28">{children}</div>
+      <VoiceNoteFab />
       <BottomNav score={snap.score} max={snap.goals.targetScore} />
     </div>
   );

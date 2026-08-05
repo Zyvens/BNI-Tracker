@@ -134,6 +134,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       const valor = Math.max(parseFloat(b.valor) || 0, 0);
       data.declaredValue = valor;
       data.declaredISO = todayISO;
+      data.dealType = b.dealType || null;
       data.confirmationStatus = "valor_declarado";
       logs.push({ dataISO: todayISO, tipo: "valor", texto: `Valor corrigido para R$ ${valor.toLocaleString("pt-BR")}.`, autorId: session.userId });
       await notify(r.giverId, {

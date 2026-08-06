@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, X, UserPlus, Send, Inbox, ChevronRight, PieChart as PieChartIcon, Handshake, Sparkles } from "lucide-react";
+import { Plus, X, Send, Inbox, ChevronRight, PieChart as PieChartIcon, ArrowLeft } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { PageHeader, fmtMoney, fadeUp, stagger } from "@/components/ui";
 
@@ -111,21 +111,9 @@ export default function ReferenciasClient(p: Props) {
         subtitle="CRM e gestão de valor"
         right={
           <div className="flex items-center gap-2">
-            <Link href="/possibilidades">
-              <motion.div whileTap={{ scale: 0.9 }} className="w-9 h-9 rounded-full bg-background flex items-center justify-center touch-manipulation">
-                <Sparkles size={16} className="text-text-main" strokeWidth={2} />
-              </motion.div>
-            </Link>
-            <Link href="/parceiros">
-              <motion.div whileTap={{ scale: 0.9 }} className="w-9 h-9 rounded-full bg-background flex items-center justify-center touch-manipulation">
-                <Handshake size={16} className="text-text-main" strokeWidth={2} />
-              </motion.div>
-            </Link>
-            <Link href="/convidados">
-              <motion.div whileTap={{ scale: 0.9 }} className="w-9 h-9 rounded-full bg-background flex items-center justify-center touch-manipulation">
-                <UserPlus size={16} className="text-text-main" strokeWidth={2} />
-              </motion.div>
-            </Link>
+            <button onClick={() => router.back()} className="w-9 h-9 rounded-full bg-background flex items-center justify-center touch-manipulation">
+              <ArrowLeft size={16} className="text-text-main" strokeWidth={2.5} />
+            </button>
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowNew(true)}

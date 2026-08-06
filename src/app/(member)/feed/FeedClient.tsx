@@ -10,6 +10,8 @@ import {
   Users,
   UserPlus,
   HeartHandshake,
+  Handshake,
+  Sparkles,
   Activity as ActivityIcon,
   CheckCircle2,
   Clock,
@@ -17,7 +19,6 @@ import {
   DollarSign,
   MapPin,
   Timer,
-  Plus,
   X,
 } from "lucide-react";
 import type { FeedItem } from "@/lib/feed";
@@ -142,24 +143,15 @@ export default function FeedClient({
             <h1 className="text-[17px] font-extrabold text-text-main font-display truncate">Feed de Atividades</h1>
             <p className="text-[11px] text-text-muted truncate">{items.length} registros</p>
           </div>
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            <Link href="/convidados" className="w-9 h-9 rounded-full bg-background flex items-center justify-center touch-manipulation">
-              <UserPlus size={16} color="#1A1A1A" strokeWidth={2} />
-            </Link>
-            <Link href="/referencias" className="w-9 h-9 rounded-full bg-background flex items-center justify-center touch-manipulation">
-              <Send size={16} color="#1A1A1A" strokeWidth={2} />
-            </Link>
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setShowNew1a1(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full touch-manipulation flex-shrink-0"
-              style={{ backgroundColor: "#F5F3FF" }}
-            >
-              <Plus size={13} color="#8B5CF6" strokeWidth={2.5} />
-              <span className="text-[11px] font-bold" style={{ color: "#8B5CF6" }}>1-a-1</span>
-            </motion.button>
-            <LogoutButton />
-          </div>
+          <LogoutButton />
+        </div>
+        {/* Registrar — todos os atalhos de inserção de dados, no mesmo padrão visual */}
+        <div className="flex items-center gap-3 px-4 pb-3 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+          <QuickAction href="/referencias" icon={Send} label="Nova Ref." color="#CC0000" bg="#FFF1F1" />
+          <QuickAction icon={Users} label="1-a-1" color="#8B5CF6" bg="#F5F3FF" onClick={() => setShowNew1a1(true)} />
+          <QuickAction href="/convidados" icon={UserPlus} label="Convidados" color="#2563EB" bg="#EFF6FF" />
+          <QuickAction href="/parceiros" icon={Handshake} label="Parceiros" color="#D97706" bg="#FFFBEB" />
+          <QuickAction href="/possibilidades" icon={Sparkles} label="Possibilidade" color="#DB2777" bg="#FDF2F8" />
         </div>
         {/* Filtros */}
         <div className="flex items-center border-t border-gray-100 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
@@ -251,6 +243,35 @@ export default function FeedClient({
       </AnimatePresence>
     </div>
   );
+}
+
+// Atalho de registro — mesmo padrão visual pra todos (ícone circular colorido + rótulo
+// embaixo), seja ele um link de navegação ou uma ação local (abrir um sheet).
+function QuickAction({
+  icon: Icon,
+  label,
+  color,
+  bg,
+  href,
+  onClick,
+}: {
+  icon: any;
+  label: string;
+  color: string;
+  bg: string;
+  href?: string;
+  onClick?: () => void;
+}) {
+  const content = (
+    <motion.div whileTap={{ scale: 0.92 }} className="flex flex-col items-center gap-1 touch-manipulation flex-shrink-0" style={{ width: 64 }}>
+      <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ backgroundColor: bg }}>
+        <Icon size={19} color={color} strokeWidth={2} />
+      </div>
+      <span className="text-[10px] font-bold text-text-main text-center leading-tight">{label}</span>
+    </motion.div>
+  );
+  if (href) return <Link href={href}>{content}</Link>;
+  return <button onClick={onClick}>{content}</button>;
 }
 
 function FeedCard({ item, onClick }: { item: FeedItem; onClick: () => void }) {

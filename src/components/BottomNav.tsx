@@ -72,7 +72,7 @@ export default function BottomNav({ score, max = 100 }: { score?: number; max?: 
                 {active && (
                   <motion.div
                     layoutId="tab-indicator"
-                    className="absolute -top-px h-0.5 w-8 rounded-full bg-primary"
+                    className="absolute -top-3 h-0.5 w-8 rounded-full bg-primary"
                   />
                 )}
               </motion.div>

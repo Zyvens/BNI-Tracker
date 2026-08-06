@@ -26,7 +26,7 @@ model Member {
   email     String?
   whatsapp  String?
   company   String?
-  category  String? // categoria profissional no capítulo
+  category  String? // categoria profissional na equipe
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -334,7 +334,7 @@ model Notification {
   @@index([userId, readAt])
 }
 
-// Regras configuráveis (metas podem variar por capítulo/região)
+// Regras configuráveis (metas podem variar por equipe/região)
 model Settings {
   id             Int      @id @default(1)
   groupName      String   @default("BNI")

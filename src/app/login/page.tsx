@@ -101,7 +101,7 @@ export default function LoginPage() {
         </form>
 
         <p className="text-center text-[11px] text-text-muted mt-6">
-          Acesso criado pelo Coordenador de Performance do seu capítulo.
+          Acesso criado pelo Coordenador de Performance da sua equipe.
         </p>
       </motion.div>
     </div>

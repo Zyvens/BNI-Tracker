@@ -131,7 +131,7 @@ export async function getMemberSnapshot(memberId: string) {
   // ---- Tempo de casa e metas proporcionais ----
   // Um membro que entrou no meio do semestre não pode ser cobrado pelas metas de
   // 6 meses inteiros: o total de reuniões já indica quanto tempo ele está ativo
-  // (o próprio relatório oficial só soma a partir da entrada dele no capítulo).
+  // (o próprio relatório oficial só soma a partir da entrada dele na equipe).
   const tenureMonths = computeTenureMonths(totalReunioes);
   const isProrated = tenureMonths < FULL_WINDOW_MONTHS - 0.05;
   const effectiveGoals = proratedGoals(goals, tenureMonths);

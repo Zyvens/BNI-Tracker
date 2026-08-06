@@ -4,7 +4,7 @@ import ConvidadosClient from "./ConvidadosClient";
 
 export const dynamic = "force-dynamic";
 
-// Regra do capítulo: cada convidado só pode visitar até 2 vezes por semestre
+// Regra da equipe: cada convidado só pode visitar até 2 vezes por semestre
 // (Jan–Jun / Jul–Dez); no semestre seguinte o contador reseta.
 const VISITS_PER_SEMESTER = 2;
 

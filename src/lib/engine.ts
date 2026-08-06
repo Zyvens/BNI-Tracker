@@ -129,17 +129,22 @@ export function scoreSemaforoStatus(score: number): Status {
 }
 
 // Pontuação 0-100 no padrão do Semáforo oficial (pesos: 20/20/10/10/5/15 + 15 presenças + 5 pontualidade)
+//
+// Soma as contribuições EXATAS (fracionárias) de cada KPI e arredonda só o total no
+// final — nunca cada componente isoladamente. Arredondar cada um dos 6 componentes
+// antes de somar acumula viés: várias frações que sozinhas arredondariam pra cima
+// (ex: 0,5+) podem inflar o total em 1 ponto ou mais frente ao valor real.
 export function computeScore(v: KpiValues, ausencias: number, atrasos: number, g: Goals = DEFAULT_GOALS): number {
   let s = 0;
-  s += v.refDadas >= g.refDadas ? 20 : Math.round((v.refDadas / g.refDadas) * 20);
-  s += v.convidados >= g.convidados ? 20 : Math.round((v.convidados / g.convidados) * 20);
-  s += v.reunioes1a1 >= g.reunioes1a1 ? 10 : Math.round((v.reunioes1a1 / g.reunioes1a1) * 10);
-  s += v.uegs >= g.uegs ? 10 : Math.round((v.uegs / g.uegs) * 10);
-  s += v.testemunhos >= g.testemunhos ? 5 : Math.round((v.testemunhos / g.testemunhos) * 5);
-  s += v.opnf >= g.opnf ? 15 : Math.round((v.opnf / g.opnf) * 15);
+  s += v.refDadas >= g.refDadas ? 20 : (v.refDadas / g.refDadas) * 20;
+  s += v.convidados >= g.convidados ? 20 : (v.convidados / g.convidados) * 20;
+  s += v.reunioes1a1 >= g.reunioes1a1 ? 10 : (v.reunioes1a1 / g.reunioes1a1) * 10;
+  s += v.uegs >= g.uegs ? 10 : (v.uegs / g.uegs) * 10;
+  s += v.testemunhos >= g.testemunhos ? 5 : (v.testemunhos / g.testemunhos) * 5;
+  s += v.opnf >= g.opnf ? 15 : (v.opnf / g.opnf) * 15;
   s += Math.max(15 - ausencias * 5, 0);
   s += atrasos === 0 ? 5 : atrasos === 1 ? 2 : 0;
-  return Math.min(s, 100);
+  return Math.min(Math.round(s), 100);
 }
 
 // Semáforo de urgência do Plano de Ação — 3 níveis por margem em MESES, não por

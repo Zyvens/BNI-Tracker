@@ -53,9 +53,9 @@ export default function ConfigClient({ settings }: { settings: Settings }) {
   return (
     <div className="px-4 py-4 space-y-4">
       <div className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4 space-y-3.5">
-        <p className="text-[14px] font-extrabold text-text-main font-display">Regras do Capítulo</p>
+        <p className="text-[14px] font-extrabold text-text-main font-display">Regras da Equipe</p>
         <p className="text-[11px] text-text-muted -mt-2">
-          As metas podem variar por capítulo, região ou metodologia. Os valores abaixo alimentam o semáforo,
+          As metas podem variar por equipe, região ou metodologia. Os valores abaixo alimentam o semáforo,
           o plano de ação e as projeções de todos os membros.
         </p>
 

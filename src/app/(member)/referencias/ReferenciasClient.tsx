@@ -453,7 +453,7 @@ function NewReferralSheet({
 
           <Field label={direcao === "recebida" ? "Quem enviou (membro)" : "Membro beneficiado"}>
             <select className={inputCls} value={otherMemberId} onChange={(e) => setOtherMemberId(e.target.value)}>
-              <option value="">— Fora do capítulo —</option>
+              <option value="">— Fora da equipe —</option>
               {members.map((m) => (
                 <option key={m.id} value={m.id}>{m.name}</option>
               ))}

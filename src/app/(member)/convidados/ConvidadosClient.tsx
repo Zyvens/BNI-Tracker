@@ -98,7 +98,7 @@ export default function ConvidadosClient({ people, visitsPerSemester }: { people
 
         <motion.div variants={fadeUp} className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-2xl px-3.5 py-2.5">
           <p className="text-[11px] font-semibold text-[#2563EB]">
-            Regra do capítulo: cada convidado pode visitar até {visitsPerSemester}x por semestre. No semestre seguinte, o limite libera de novo.
+            Regra da equipe: cada convidado pode visitar até {visitsPerSemester}x por semestre. No semestre seguinte, o limite libera de novo.
           </p>
         </motion.div>
 

@@ -86,7 +86,7 @@ export default async function AdminOverviewPage() {
         <div className="bg-surface rounded-2xl border border-gray-100 p-8 flex flex-col items-center text-center">
           <p className="text-[14px] font-bold text-text-main font-display">Nenhum relatório importado</p>
           <p className="text-[11px] text-text-muted mt-1 mb-4">
-            Importe o PDF &quot;Semáforos&quot; para ver a visão geral do capítulo.
+            Importe o PDF &quot;Semáforos&quot; para ver a visão geral da equipe.
           </p>
           <Link href="/admin/relatorios" className="px-4 py-2.5 rounded-2xl bg-primary text-white text-[13px] font-bold touch-manipulation">
             Importar relatório

@@ -402,7 +402,7 @@ function New1a1Sheet({
           <div>
             <label className="text-[11px] font-bold uppercase tracking-wider text-text-muted mb-1.5 block">Com quem?</label>
             <select className={input} value={withMemberId} onChange={(e) => setWithMemberId(e.target.value)}>
-              <option value="">— Fora do capítulo —</option>
+              <option value="">— Fora da equipe —</option>
               {members.map((m) => (
                 <option key={m.id} value={m.id}>{m.name}</option>
               ))}

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 
-// Parceiros recorrentes: contatos externos (fora do capítulo) que mandam
+// Parceiros recorrentes: contatos externos (fora da equipe) que mandam
 // indicação com frequência mensal. Casados por nome com Referral.giverName.
 export async function GET() {
   const session = await getSession();

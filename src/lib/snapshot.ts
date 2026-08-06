@@ -178,7 +178,21 @@ export async function getMemberSnapshot(memberId: string) {
 
   const { months, actions } = computeProjection(production, current, effectiveGoals, today, ausencias, atrasos);
   const statusCard = computeStatusCard(actions);
-  const score = computeScore(current, ausencias, atrasos, effectiveGoals);
+
+  // Pontuação: quando não há NENHUM registro manual além do último relatório oficial
+  // importado (current === official em todos os KPIs, mesmas ausências/atrasos), usamos
+  // o totalPoints que a própria BNI já calculou no PDF — ele é a fonte da verdade e pode
+  // usar uma proporcionalização de metas por tempo de casa ligeiramente diferente da
+  // nossa aproximação, o que fazia o app mostrar um valor a mais/a menos que o oficial.
+  // Só recalculamos com computeScore quando há produção nova (WeekEntry/ajuste rápido)
+  // ainda não refletida em nenhum relatório oficial.
+  const matchesOfficial =
+    !!official &&
+    latest !== null &&
+    ausencias === latest.absences &&
+    atrasos === latest.late &&
+    (Object.keys(official) as KpiId[]).every((k) => current[k] === official[k]);
+  const score = matchesOfficial ? latest!.totalPoints : computeScore(current, ausencias, atrasos, effectiveGoals);
   const outlook = computeOutlook(score, months, effectiveGoals, today);
 
   const kpis = KPIS.map((kpi) => {

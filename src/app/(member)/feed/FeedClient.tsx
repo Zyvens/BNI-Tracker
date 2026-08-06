@@ -146,7 +146,7 @@ export default function FeedClient({
           <LogoutButton />
         </div>
         {/* Registrar — todos os atalhos de inserção de dados, no mesmo padrão visual */}
-        <div className="flex items-center gap-3 px-4 pb-3 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+        <div className="flex items-center justify-center gap-3 px-4 pb-3 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
           <QuickAction href="/referencias" icon={Send} label="Nova Ref." color="#CC0000" bg="#FFF1F1" />
           <QuickAction icon={Users} label="1-a-1" color="#8B5CF6" bg="#F5F3FF" onClick={() => setShowNew1a1(true)} />
           <QuickAction href="/convidados" icon={UserPlus} label="Convidados" color="#2563EB" bg="#EFF6FF" />

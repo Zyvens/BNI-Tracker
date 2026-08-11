@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, X, Send, Inbox, ChevronRight, PieChart as PieChartIcon, ArrowLeft } from "lucide-react";
+import { Plus, X, Send, Inbox, ChevronRight, PieChart as PieChartIcon, ArrowLeft, Scale } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { PageHeader, fmtMoney, fadeUp, stagger } from "@/components/ui";
 
@@ -58,25 +58,36 @@ type Ref = {
   dealType: string | null;
 };
 
+type ReciprocityRow = {
+  memberId: string;
+  name: string;
+  givenCount: number;
+  givenClosed: number;
+  receivedCount: number;
+  receivedClosed: number;
+  valueGenerated: number;
+};
+
 type Props = {
   recebidas: Ref[];
   dadas: Ref[];
   members: { id: string; name: string }[];
   pendencias: { declarar: number; confirmar: number; semRetorno: number; paradas: number };
+  reciprocidade: ReciprocityRow[];
 };
 
 export default function ReferenciasClient(p: Props) {
   const router = useRouter();
   const params = useSearchParams();
-  const [aba, setAba] = useState<"recebidas" | "dadas">(
-    params.get("aba") === "dadas" ? "dadas" : "recebidas"
+  const [aba, setAba] = useState<"recebidas" | "dadas" | "comparativo">(
+    params.get("aba") === "dadas" ? "dadas" : params.get("aba") === "comparativo" ? "comparativo" : "recebidas"
   );
   const [showNew, setShowNew] = useState(false);
 
-  const list = aba === "recebidas" ? p.recebidas : p.dadas;
+  const list = aba === "dadas" ? p.dadas : aba === "recebidas" ? p.recebidas : [];
 
   const resumo = useMemo(() => {
-    const arr = aba === "recebidas" ? p.recebidas : p.dadas;
+    const arr = aba === "dadas" ? p.dadas : p.recebidas;
     const fechadas = arr.filter((r) => r.status === "fechada");
     const valor = fechadas.reduce((s, r) => s + (r.confirmedValue ?? r.declaredValue ?? 0), 0);
     const emAndamento = arr.filter((r) => !["fechada", "perdida", "sem_perfil", "duplicada"].includes(r.status));
@@ -130,18 +141,18 @@ export default function ReferenciasClient(p: Props) {
       <div className="px-4 py-4 space-y-4">
         {/* Abas */}
         <div className="bg-surface rounded-2xl p-1 flex border border-gray-100">
-          {(["recebidas", "dadas"] as const).map((t) => (
+          {(["recebidas", "dadas", "comparativo"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setAba(t)}
-              className="flex-1 h-10 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1.5 touch-manipulation transition-colors"
+              className="flex-1 h-10 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 touch-manipulation transition-colors px-1"
               style={{
                 backgroundColor: aba === t ? "#CC0000" : "transparent",
                 color: aba === t ? "#FFFFFF" : "#8A8A8E",
               }}
             >
-              {t === "recebidas" ? <Inbox size={14} /> : <Send size={14} />}
-              {t === "recebidas" ? "Recebidas" : "Dadas"}
+              {t === "recebidas" ? <Inbox size={14} /> : t === "dadas" ? <Send size={14} /> : <Scale size={14} />}
+              {t === "recebidas" ? "Recebidas" : t === "dadas" ? "Dadas" : "Comparativo"}
               {t === "recebidas" && p.pendencias.declarar > 0 && (
                 <span className="min-w-[16px] h-4 px-1 rounded-full bg-white text-primary text-[9px] font-extrabold flex items-center justify-center">
                   {p.pendencias.declarar}
@@ -156,6 +167,10 @@ export default function ReferenciasClient(p: Props) {
           ))}
         </div>
 
+        {aba === "comparativo" ? (
+          <ReciprocidadeList rows={p.reciprocidade} />
+        ) : (
+          <>
         {/* Resumo */}
         <motion.div initial="hidden" animate="visible" variants={stagger}>
           <motion.div variants={fadeUp} className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4 grid grid-cols-4 gap-2">
@@ -301,6 +316,8 @@ export default function ReferenciasClient(p: Props) {
             );
           })}
         </div>
+        </>
+        )}
       </div>
 
       {/* Sheet: nova referência */}
@@ -318,6 +335,86 @@ export default function ReferenciasClient(p: Props) {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+// Comparativo de reciprocidade: por contato, quanto você deu vs. recebeu e o valor que
+// isso gerou — deixa visível quem está "carregando" a relação em cada sentido.
+function ReciprocidadeList({ rows }: { rows: ReciprocityRow[] }) {
+  if (rows.length === 0) {
+    return (
+      <div className="bg-surface rounded-2xl border border-gray-100 p-8 flex flex-col items-center text-center">
+        <Scale size={32} className="text-gray-300 mb-2" />
+        <p className="text-[14px] font-bold text-text-main font-display">Sem trocas registradas ainda</p>
+        <p className="text-[11px] text-text-muted mt-1">
+          O comparativo aparece assim que houver referências dadas ou recebidas com membros da equipe.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <motion.div initial="hidden" animate="visible" variants={stagger} className="space-y-2.5">
+      <motion.p variants={fadeUp} className="text-[10px] text-text-muted leading-relaxed px-1">
+        Quem dá mais e quem recebe mais em cada relação, ordenado pelo maior desequilíbrio.
+      </motion.p>
+      {rows.map((row) => {
+        const total = row.givenCount + row.receivedCount;
+        const givenPct = total > 0 ? (row.givenCount / total) * 100 : 50;
+        const firstName = row.name.split(" ")[0];
+
+        let insight: string;
+        let insightColor: string;
+        if (row.givenCount === 0) {
+          insight = `${firstName} já te deu, você ainda não retribuiu`;
+          insightColor = "#2563EB";
+        } else if (row.receivedCount === 0) {
+          insight = `Você já deu, ${firstName} ainda não retribuiu`;
+          insightColor = "#CC0000";
+        } else {
+          const ratio = row.givenCount / row.receivedCount;
+          if (ratio >= 1.4) {
+            insight = `Você dá ~${ratio.toFixed(1)}x mais do que recebe`;
+            insightColor = "#CC0000";
+          } else if (ratio <= 1 / 1.4) {
+            insight = `${firstName} dá ~${(1 / ratio).toFixed(1)}x mais do que você retribui`;
+            insightColor = "#2563EB";
+          } else {
+            insight = "Relação equilibrada";
+            insightColor = "#16A34A";
+          }
+        }
+
+        return (
+          <motion.div key={row.memberId} variants={fadeUp}>
+            <Link href={`/referencias/contato/${row.memberId}`}>
+              <motion.div whileTap={{ scale: 0.98 }} className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4 touch-manipulation">
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  <p className="text-[14px] font-extrabold text-text-main font-display truncate">{row.name}</p>
+                  <ChevronRight size={16} className="text-gray-300 flex-shrink-0" />
+                </div>
+                <div className="h-2 rounded-full bg-gray-100 overflow-hidden flex mb-2">
+                  <div className="h-full" style={{ width: `${givenPct}%`, backgroundColor: "#CC0000" }} />
+                  <div className="h-full flex-1" style={{ backgroundColor: "#2563EB" }} />
+                </div>
+                <div className="flex items-center justify-between gap-2 text-[10px] font-bold mb-2">
+                  <span style={{ color: "#CC0000" }}>Você deu: {row.givenCount} ({row.givenClosed} fechadas)</span>
+                  <span style={{ color: "#2563EB" }}>Recebeu: {row.receivedCount} ({row.receivedClosed} fechadas)</span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-bold" style={{ color: insightColor }}>{insight}</span>
+                  {row.valueGenerated > 0 && (
+                    <span className="text-[11px] font-extrabold font-display text-success flex-shrink-0">
+                      {fmtMoney(row.valueGenerated, true)}
+                    </span>
+                  )}
+                </div>
+              </motion.div>
+            </Link>
+          </motion.div>
+        );
+      })}
+    </motion.div>
   );
 }
 

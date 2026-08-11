@@ -84,7 +84,7 @@ export default function ParceirosClient({ partners }: { partners: Partner[] }) {
       <motion.div initial="hidden" animate="visible" variants={stagger} className="px-4 py-4 space-y-4">
         <motion.div variants={fadeUp} className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4 grid grid-cols-3 gap-2">
           {[
-            { label: "Parceiros ativos", value: `${partners.filter((p) => p.active).length}`, color: "#1A1A1A" },
+            { label: "Parceiros ativos", value: `${partners.filter((p) => p.active).length}`, color: "var(--color-text-main)" },
             { label: "Referências recebidas", value: `${partners.reduce((s, p) => s + p.stats.count, 0)}`, color: "#2563EB" },
             { label: "Valor gerado", value: fmtMoney(totalValor, true), color: "#16A34A" },
           ].map((s) => (

@@ -107,7 +107,7 @@ export default function SemanasClient(p: Props) {
         {/* Presenças */}
         <div className="grid grid-cols-4 gap-2">
           {[
-            { label: "Total", value: p.totals.total, color: "#1A1A1A" },
+            { label: "Total", value: p.totals.total, color: "var(--color-text-main)" },
             { label: "Presentes", value: p.totals.presencas, color: "#22C55E" },
             { label: "Substitutos", value: p.totals.substituicoes, color: "#F59E0B" },
             { label: "Ausências", value: p.totals.ausencias, color: "#CC0000" },

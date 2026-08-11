@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import "./globals.css";
+
+const THEMES = ["light", "dark", "blue-moon"] as const;
 
 export const metadata: Metadata = {
   title: "BNI Tracker",
@@ -20,8 +23,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieTheme = cookies().get("theme")?.value;
+  const theme = (THEMES as readonly string[]).includes(cookieTheme ?? "") ? cookieTheme! : "light";
+
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" data-theme={theme}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

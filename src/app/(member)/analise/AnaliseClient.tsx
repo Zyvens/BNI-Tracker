@@ -110,7 +110,7 @@ export default function AnaliseClient(p: Props) {
               { label: "Recebido", value: fmtMoney(f.valorFechado, true), color: "#16A34A" },
             ].map((s) => (
               <div key={s.label} className="flex flex-col items-center">
-                <span className="text-[14px] font-extrabold font-display" style={{ color: s.color ?? "#1A1A1A" }}>
+                <span className="text-[14px] font-extrabold font-display" style={{ color: s.color ?? "var(--color-text-main)" }}>
                   {s.value}
                 </span>
                 <span className="text-[8.5px] text-text-muted font-semibold text-center leading-tight">{s.label}</span>

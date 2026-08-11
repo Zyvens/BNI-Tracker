@@ -191,7 +191,7 @@ export default function VoiceNoteFab() {
                         whileTap={{ scale: 0.94 }}
                         onClick={recording ? stopRecording : startRecording}
                         className="w-16 h-16 rounded-full flex items-center justify-center touch-manipulation"
-                        style={{ backgroundColor: recording ? "#1A1A1A" : "#CC0000" }}
+                        style={{ backgroundColor: recording ? "var(--color-text-main)" : "#CC0000" }}
                         animate={recording ? { scale: [1, 1.06, 1] } : {}}
                         transition={{ repeat: recording ? Infinity : 0, duration: 1 }}
                       >

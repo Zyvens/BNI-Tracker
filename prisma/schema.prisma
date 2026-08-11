@@ -45,6 +45,35 @@ model Member {
   possibilities        Possibility[]
   voiceNotes           VoiceNote[]
   weeklyUpdates        WeeklyUpdate[]
+  thankYouDebts        ThankYouDebt[]
+}
+
+// "A Receber" — pessoa que te deve um agradecimento mensal fixo (valor que você
+// costuma gerar pra ela todo mês, ex: indicação recorrente pra alguém de outro
+// grupo). Rastreado mês a mês pra saber se ela já agradeceu ou ainda falta.
+model ThankYouDebt {
+  id           String   @id @default(uuid())
+  memberId     String
+  name         String
+  monthlyValue Float
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  member Member              @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  months ThankYouDebtMonth[]
+}
+
+model ThankYouDebtMonth {
+  id        String    @id @default(uuid())
+  debtId    String
+  monthKey  String    // "2026-08"
+  thanked   Boolean   @default(false)
+  thankedAt DateTime?
+
+  debt ThankYouDebt @relation(fields: [debtId], references: [id], onDelete: Cascade)
+
+  @@unique([debtId, monthKey])
 }
 
 // Atualização semanal textual/estruturada — log complementar aos números do

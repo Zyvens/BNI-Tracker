@@ -25,6 +25,7 @@ import {
   TrendingUpDown,
   X,
   Check,
+  Settings,
 } from "lucide-react";
 import { ScoreRing, ProgressBar, STATUS_COLORS, StatusKey, fmtMoney, fadeUp, stagger } from "@/components/ui";
 import LogoutButton from "@/components/LogoutButton";
@@ -135,7 +136,7 @@ export default function DashboardClient(p: Props) {
           </div>
           <div className="flex items-center gap-2">
             <Link href="/notificacoes" className="relative w-9 h-9 rounded-full bg-background flex items-center justify-center touch-manipulation">
-              <Bell size={16} color="#1A1A1A" strokeWidth={2} />
+              <Bell size={16} color="var(--color-text-main)" strokeWidth={2} />
               {p.unread > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-primary text-white text-[9px] font-extrabold flex items-center justify-center">
                   {p.unread > 9 ? "9+" : p.unread}
@@ -151,6 +152,9 @@ export default function DashboardClient(p: Props) {
                 <Zap size={13} color="#CC0000" strokeWidth={2.5} />
                 <span className="text-[11px] font-bold text-primary">Registrar</span>
               </motion.div>
+            </Link>
+            <Link href="/configuracoes" className="w-9 h-9 rounded-full bg-background flex items-center justify-center touch-manipulation">
+              <Settings size={16} color="var(--color-text-main)" strokeWidth={2} />
             </Link>
             <LogoutButton />
           </div>
@@ -244,7 +248,7 @@ export default function DashboardClient(p: Props) {
           <div className="grid grid-cols-4 border-t border-gray-100 divide-x divide-gray-100">
             {[
               { label: "Projeção", value: `${p.outlook.projectedScore}`, color: p.outlook.projectedScore >= p.targetScore ? "#22C55E" : p.outlook.projectedScore >= p.score ? "#F59E0B" : "#CC0000" },
-              { label: "Dias rest.", value: `${p.outlook.daysRemaining}`, color: "#1A1A1A" },
+              { label: "Dias rest.", value: `${p.outlook.daysRemaining}`, color: "var(--color-text-main)" },
               { label: "Margem", value: `${p.outlook.marginPoints >= 0 ? "+" : ""}${p.outlook.marginPoints}`, color: p.outlook.marginPoints >= 0 ? "#22C55E" : "#CC0000" },
               { label: "Prob. 100", value: `${p.outlook.probability}%`, color: p.outlook.probability >= 70 ? "#22C55E" : p.outlook.probability >= 40 ? "#F59E0B" : "#CC0000" },
             ].map((s) => (
@@ -493,7 +497,7 @@ function KpiCard({ kpi: k, onClick }: { kpi: Kpi; onClick: () => void }) {
       <div className="p-3 flex flex-col gap-2.5 flex-1">
         <div className="flex items-start justify-between">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-background">
-            <Icon size={17} color="#1A1A1A" strokeWidth={2} />
+            <Icon size={17} color="var(--color-text-main)" strokeWidth={2} />
           </div>
           <div className="px-2 py-0.5 rounded-full flex-shrink-0 flex items-baseline gap-0.5" style={{ backgroundColor: chipBg }}>
             <span className="text-[10px] font-extrabold leading-none font-display" style={{ color: st.color }}>

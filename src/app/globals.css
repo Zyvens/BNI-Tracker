@@ -2,10 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---- Temas ----
+ * Claro é o padrão (:root, sem data-theme ou data-theme="light"). Escuro e Blue Moon
+ * sobrescrevem as mesmas variáveis. Cores de marca/status (vermelho primário, verde
+ * sucesso, âmbar alerta, azul/roxo informativos etc.) ficam fixas nos componentes —
+ * só a paleta neutra (fundo, superfície, texto, bordas) muda por tema.
+ */
+:root,
+[data-theme="light"] {
+  --color-background: #f5f5f7;
+  --color-surface: #ffffff;
+  --color-text-main: #1a1a1a;
+  --color-text-muted: #8a8a8e;
+  --color-border: #f3f4f6;
+  --color-border-soft: #f9fafb;
+  --color-border-strong: #e5e7eb;
+  --color-track: #e5e7eb;
+  --color-track-soft: #f3f4f6;
+  --color-icon-muted: #d1d5db;
+}
+
+[data-theme="dark"] {
+  --color-background: #0c0c0e;
+  --color-surface: #18181b;
+  --color-text-main: #f4f4f5;
+  --color-text-muted: #9b9ba3;
+  --color-border: #27272a;
+  --color-border-soft: #1f1f22;
+  --color-border-strong: #333338;
+  --color-track: #2a2a2e;
+  --color-track-soft: #201f23;
+  --color-icon-muted: #4b4b52;
+}
+
+[data-theme="blue-moon"] {
+  --color-background: #0a1220;
+  --color-surface: #111d33;
+  --color-text-main: #e7eefc;
+  --color-text-muted: #7f90b3;
+  --color-border: #1e2c48;
+  --color-border-soft: #17233c;
+  --color-border-strong: #2c3f63;
+  --color-track: #1b2843;
+  --color-track-soft: #142033;
+  --color-icon-muted: #48587e;
+}
+
 html,
 body {
-  background-color: #f5f5f7;
-  color: #1a1a1a;
+  background-color: var(--color-background);
+  color: var(--color-text-main);
   font-family: Inter, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
@@ -18,4 +64,41 @@ input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* A maior parte do app usa as classes semânticas (bg-surface, text-text-muted, etc.),
+ * que já seguem o tema via as variáveis acima. Estas sobrescritas cobrem os poucos
+ * lugares que usam cinza/branco "cru" do Tailwind diretamente, pra tudo respeitar o
+ * tema sem precisar editar cada componente. */
+[data-theme="dark"] .bg-white,
+[data-theme="blue-moon"] .bg-white {
+  background-color: var(--color-surface);
+}
+[data-theme="dark"] .bg-gray-100,
+[data-theme="blue-moon"] .bg-gray-100 {
+  background-color: var(--color-track-soft);
+}
+[data-theme="dark"] .bg-gray-200,
+[data-theme="blue-moon"] .bg-gray-200 {
+  background-color: var(--color-track);
+}
+[data-theme="dark"] .border-gray-50,
+[data-theme="blue-moon"] .border-gray-50,
+[data-theme="dark"] .divide-gray-50 > :not([hidden]) ~ :not([hidden]),
+[data-theme="blue-moon"] .divide-gray-50 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--color-border-soft);
+}
+[data-theme="dark"] .border-gray-100,
+[data-theme="blue-moon"] .border-gray-100,
+[data-theme="dark"] .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+[data-theme="blue-moon"] .divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--color-border);
+}
+[data-theme="dark"] .border-gray-200,
+[data-theme="blue-moon"] .border-gray-200 {
+  border-color: var(--color-border-strong);
+}
+[data-theme="dark"] .text-gray-300,
+[data-theme="blue-moon"] .text-gray-300 {
+  color: var(--color-icon-muted);
 }

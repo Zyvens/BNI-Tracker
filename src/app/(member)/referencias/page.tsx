@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/auth";
 import { getMemberSnapshotCached } from "@/lib/snapshot";
 import { prisma } from "@/lib/prisma";
+import { getThankYouDebtsForMonth, monthKeyOf } from "@/lib/thankYouDebts";
 import ReferenciasClient from "./ReferenciasClient";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +14,8 @@ export default async function ReferenciasPage() {
     select: { id: true, name: true },
     orderBy: { name: "asc" },
   });
+  const currentMonth = monthKeyOf(new Date());
+  const thankYouDebts = await getThankYouDebtsForMonth(session.memberId!, currentMonth);
 
   const mapRef = (r: (typeof snap.refsGiven)[number], direcao: "dada" | "recebida") => ({
     id: r.id,
@@ -47,12 +50,13 @@ export default async function ReferenciasPage() {
     receivedCount: number;
     receivedClosed: number;
     valueGenerated: number;
+    valueGiven: number;
   };
   const reciMap = new Map<string, ReciprocityRow>();
   const getRow = (memberId: string, name: string) => {
     let row = reciMap.get(memberId);
     if (!row) {
-      row = { memberId, name, givenCount: 0, givenClosed: 0, receivedCount: 0, receivedClosed: 0, valueGenerated: 0 };
+      row = { memberId, name, givenCount: 0, givenClosed: 0, receivedCount: 0, receivedClosed: 0, valueGenerated: 0, valueGiven: 0 };
       reciMap.set(memberId, row);
     }
     return row;
@@ -61,7 +65,10 @@ export default async function ReferenciasPage() {
     if (!r.receiverId) continue;
     const row = getRow(r.receiverId, (r as any).receiver?.name ?? r.receiverName ?? "—");
     row.givenCount++;
-    if (r.status === "fechada") row.givenClosed++;
+    if (r.status === "fechada") {
+      row.givenClosed++;
+      row.valueGiven += r.confirmedValue ?? r.declaredValue ?? r.estimatedValue;
+    }
   }
   for (const r of snap.refsReceived) {
     if (!r.giverId) continue;
@@ -83,6 +90,8 @@ export default async function ReferenciasPage() {
       members={members}
       pendencias={snap.pendencias}
       reciprocidade={reciprocidade}
+      thankYouMonth={currentMonth}
+      thankYouDebts={thankYouDebts}
     />
   );
 }

@@ -102,13 +102,13 @@ export default function FeedClient({
         { label: "Convertidas", value: conv, color: "#22C55E" },
         { label: "Em Andamento", value: and, color: "#F59E0B" },
         { label: "Perdidas", value: perd, color: "#CC0000" },
-        { label: `Total R$${(total / 1000).toFixed(1)}k`, value: filtered.length, color: "#1A1A1A" },
+        { label: `Total R$${(total / 1000).toFixed(1)}k`, value: filtered.length, color: "var(--color-text-main)" },
       ];
     }
     if (filtro === "1a1") {
       return [
         { label: "Realizadas", value: filtered.length, color: "#8B5CF6" },
-        { label: "Meta semestral", value: goal1a1, color: "#1A1A1A" },
+        { label: "Meta semestral", value: goal1a1, color: "var(--color-text-main)" },
         { label: "Membros únicos", value: new Set(filtered.map((i) => i.nome)).size, color: "#22C55E" },
         { label: "", value: 0, color: "transparent" },
       ];
@@ -118,7 +118,7 @@ export default function FeedClient({
     return [
       { label: "Dados", value: dados, color: "#F59E0B" },
       { label: "Recebidos", value: recebidos, color: "#0EA5E9" },
-      { label: "Total", value: filtered.length, color: "#1A1A1A" },
+      { label: "Total", value: filtered.length, color: "var(--color-text-main)" },
       { label: "", value: 0, color: "transparent" },
     ];
   }, [filtro, filtered, items, goal1a1]);

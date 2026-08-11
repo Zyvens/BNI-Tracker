@@ -84,7 +84,7 @@ export default function ConvidadosClient({ people, visitsPerSemester }: { people
         {/* Estatísticas */}
         <motion.div variants={fadeUp} className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4 grid grid-cols-4 gap-2">
           {[
-            { label: "Pessoas", value: `${totalPessoas}`, color: "#1A1A1A" },
+            { label: "Pessoas", value: `${totalPessoas}`, color: "var(--color-text-main)" },
             { label: "Visitas totais", value: `${total}`, color: "#2563EB" },
             { label: "Compareceram", value: `${taxaComp}%`, color: taxaComp >= 60 ? "#16A34A" : "#D97706" },
             { label: "Viraram membro", value: `${converteram}`, color: "#8B5CF6" },

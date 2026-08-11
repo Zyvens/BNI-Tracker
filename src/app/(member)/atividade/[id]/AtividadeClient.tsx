@@ -136,7 +136,7 @@ export default function AtividadeClient({ item }: { item: FeedItem | null }) {
             onClick={() => router.back()}
             className="flex items-center justify-center w-9 h-9 rounded-full bg-background touch-manipulation -ml-1"
           >
-            <ChevronLeft size={22} color="#1A1A1A" strokeWidth={2} />
+            <ChevronLeft size={22} color="var(--color-text-main)" strokeWidth={2} />
           </motion.button>
           <div className="flex-1 min-w-0">
             <h1 className="text-[17px] font-bold leading-tight truncate text-text-main font-display">{t.label}</h1>
@@ -403,7 +403,7 @@ function InfoRow({
       </div>
       <div className="flex-1">
         <p className="text-[11px] text-text-muted font-semibold">{label}</p>
-        <p className="text-[14px] font-bold" style={{ color: valueColor ?? "#1A1A1A" }}>{value}</p>
+        <p className="text-[14px] font-bold" style={{ color: valueColor ?? "var(--color-text-main)" }}>{value}</p>
       </div>
     </div>
   );

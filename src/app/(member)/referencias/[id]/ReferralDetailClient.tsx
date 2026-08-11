@@ -337,7 +337,7 @@ function Info({ label, value, highlight }: { label: string; value: string; highl
   return (
     <div>
       <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">{label}</p>
-      <p className="text-[13px] font-bold" style={{ color: highlight ?? "#1A1A1A" }}>{value}</p>
+      <p className="text-[13px] font-bold" style={{ color: highlight ?? "var(--color-text-main)" }}>{value}</p>
     </div>
   );
 }

@@ -9,14 +9,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#F5F5F7",
-        surface: "#FFFFFF",
+        background: "var(--color-background)",
+        surface: "var(--color-surface)",
         primary: "#CC0000",
         success: "#22C55E",
         warning: "#F59E0B",
         danger: "#CC0000",
-        "text-main": "#1A1A1A",
-        "text-muted": "#8A8A8E",
+        "text-main": "var(--color-text-main)",
+        "text-muted": "var(--color-text-muted)",
       },
       fontFamily: {
         display: ["'Plus Jakarta Sans'", "sans-serif"],

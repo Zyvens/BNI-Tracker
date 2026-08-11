@@ -164,7 +164,7 @@ export default function SaudeDmiClient(p: Props) {
                     <Icon size={20} color={c.color} strokeWidth={2} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-[15px] font-extrabold font-display" style={{ color: critical ? "#CC0000" : "#1A1A1A" }}>
+                    <h3 className="text-[15px] font-extrabold font-display" style={{ color: critical ? "#CC0000" : "var(--color-text-main)" }}>
                       {k.label}
                     </h3>
                     <p className="text-[11px] text-text-muted">{k.metaLabel}</p>

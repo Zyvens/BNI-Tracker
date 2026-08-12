@@ -22,9 +22,14 @@ import {
   X,
 } from "lucide-react";
 import type { FeedItem } from "@/lib/feed";
+import type { ReciprocityRow } from "@/lib/reciprocity";
+import type { ThankYouDebtRow } from "@/lib/thankYouDebts";
 import LogoutButton from "@/components/LogoutButton";
+import ComparativoSection from "@/components/ComparativoSection";
+import NewReferralSheet from "@/components/NewReferralSheet";
 
 const FILTERS = [
+  { id: "resumo", label: "Resumo", shortLabel: "Resumo" },
   { id: "todos", label: "Todos", shortLabel: "Todos" },
   { id: "dadas", label: "Ref. Dadas", shortLabel: "Dadas" },
   { id: "recebidas", label: "Ref. Recebidas", shortLabel: "Receb." },
@@ -71,16 +76,23 @@ export default function FeedClient({
   items,
   goal1a1,
   members,
+  reciprocidade,
+  thankYouMonth,
+  thankYouDebts,
 }: {
   items: FeedItem[];
   goal1a1: number;
   members: { id: string; name: string }[];
+  reciprocidade: ReciprocityRow[];
+  thankYouMonth: string;
+  thankYouDebts: ThankYouDebtRow[];
 }) {
   const router = useRouter();
   const params = useSearchParams();
   const initial = FILTERS.some((f) => f.id === params.get("filtro")) ? params.get("filtro")! : "todos";
   const [filtro, setFiltro] = useState(initial);
   const [showNew1a1, setShowNew1a1] = useState(false);
+  const [showNewReferral, setShowNewReferral] = useState(false);
 
   const filtered = useMemo(() => applyFilter(items, filtro), [items, filtro]);
 
@@ -147,7 +159,7 @@ export default function FeedClient({
         </div>
         {/* Registrar — todos os atalhos de inserção de dados, no mesmo padrão visual */}
         <div className="flex items-center justify-center gap-3 px-4 pb-3 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-          <QuickAction href="/referencias" icon={Send} label="Nova Ref." color="#CC0000" bg="#FFF1F1" />
+          <QuickAction onClick={() => setShowNewReferral(true)} icon={Send} label="Nova Ref." color="#CC0000" bg="#FFF1F1" />
           <QuickAction icon={Users} label="1-a-1" color="#8B5CF6" bg="#F5F3FF" onClick={() => setShowNew1a1(true)} />
           <QuickAction href="/convidados" icon={UserPlus} label="Convidados" color="#2563EB" bg="#EFF6FF" />
           <QuickAction href="/parceiros" icon={Handshake} label="Parceiros" color="#D97706" bg="#FFFBEB" />
@@ -182,49 +194,57 @@ export default function FeedClient({
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2 }}
         >
-          {/* Estatísticas do filtro */}
-          <div className="px-4 pt-4 pb-3">
-            <div className="grid grid-cols-4 gap-2">
-              {stats.map((s, i) =>
-                s.label ? (
-                  <div key={i} className="bg-surface rounded-2xl p-3 shadow-sm border border-gray-100 flex flex-col items-center gap-1 text-center">
-                    <span className="text-[18px] font-extrabold leading-none font-display" style={{ color: s.color }}>
-                      {s.value}
-                    </span>
-                    <span className="text-[9px] text-text-muted font-semibold leading-tight">{s.label}</span>
-                  </div>
-                ) : (
-                  <div key={i} />
-                )
-              )}
-            </div>
-          </div>
-
-          <div className="px-4 pb-2 pt-1">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">{caption}</p>
-          </div>
-
-          {filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <div className="w-14 h-14 rounded-2xl bg-surface border border-gray-100 shadow-sm flex items-center justify-center">
-                <ActivityIcon size={28} color="#8A8A8E" strokeWidth={1.5} />
-              </div>
-              <p className="text-[14px] font-bold text-text-main">Nenhum registro</p>
-              <p className="text-[12px] text-text-muted text-center px-8">
-                Não há atividades nesta categoria ainda.
-              </p>
+          {filtro === "resumo" ? (
+            <div className="px-4 pt-4 pb-3">
+              <ComparativoSection rows={reciprocidade} thankYouMonth={thankYouMonth} thankYouDebts={thankYouDebts} />
             </div>
           ) : (
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.045 } } }}
-              className="pt-1"
-            >
-              {filtered.map((item) => (
-                <FeedCard key={item.id} item={item} onClick={() => router.push(`/atividade/${item.id}`)} />
-              ))}
-            </motion.div>
+            <>
+              {/* Estatísticas do filtro */}
+              <div className="px-4 pt-4 pb-3">
+                <div className="grid grid-cols-4 gap-2">
+                  {stats.map((s, i) =>
+                    s.label ? (
+                      <div key={i} className="bg-surface rounded-2xl p-3 shadow-sm border border-gray-100 flex flex-col items-center gap-1 text-center">
+                        <span className="text-[18px] font-extrabold leading-none font-display" style={{ color: s.color }}>
+                          {s.value}
+                        </span>
+                        <span className="text-[9px] text-text-muted font-semibold leading-tight">{s.label}</span>
+                      </div>
+                    ) : (
+                      <div key={i} />
+                    )
+                  )}
+                </div>
+              </div>
+
+              <div className="px-4 pb-2 pt-1">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">{caption}</p>
+              </div>
+
+              {filtered.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <div className="w-14 h-14 rounded-2xl bg-surface border border-gray-100 shadow-sm flex items-center justify-center">
+                    <ActivityIcon size={28} color="#8A8A8E" strokeWidth={1.5} />
+                  </div>
+                  <p className="text-[14px] font-bold text-text-main">Nenhum registro</p>
+                  <p className="text-[12px] text-text-muted text-center px-8">
+                    Não há atividades nesta categoria ainda.
+                  </p>
+                </div>
+              ) : (
+                <motion.div
+                  initial="hidden"
+                  animate="visible"
+                  variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.045 } } }}
+                  className="pt-1"
+                >
+                  {filtered.map((item) => (
+                    <FeedCard key={item.id} item={item} onClick={() => router.push(`/atividade/${item.id}`)} />
+                  ))}
+                </motion.div>
+              )}
+            </>
           )}
         </motion.div>
       </AnimatePresence>
@@ -236,6 +256,20 @@ export default function FeedClient({
             onClose={() => setShowNew1a1(false)}
             onSaved={() => {
               setShowNew1a1(false);
+              router.refresh();
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showNewReferral && (
+          <NewReferralSheet
+            members={members}
+            defaultDirecao="recebida"
+            onClose={() => setShowNewReferral(false)}
+            onSaved={() => {
+              setShowNewReferral(false);
               router.refresh();
             }}
           />

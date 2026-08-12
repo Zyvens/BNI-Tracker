@@ -56,7 +56,7 @@ export default function AnaliseClient(p: Props) {
           <div className="h-1 w-full bg-gradient-to-r from-red-500 via-amber-400 to-green-500" />
           <div className="p-4">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-xl bg-[#FFF1F1] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-[var(--tint-red-bg)] flex items-center justify-center">
                 <Sparkles size={16} color="#CC0000" />
               </div>
               <div>
@@ -81,7 +81,7 @@ export default function AnaliseClient(p: Props) {
         {/* Funil de conversão */}
         <motion.div variants={fadeUp} className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-xl bg-[#EFF6FF] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[var(--tint-blue-bg)] flex items-center justify-center">
               <Filter size={16} color="#2563EB" />
             </div>
             <div>
@@ -163,7 +163,7 @@ export default function AnaliseClient(p: Props) {
         {/* Relacionamentos */}
         <motion.div variants={fadeUp} className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-xl bg-[#F5F3FF] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[var(--tint-purple-bg)] flex items-center justify-center">
               <Users2 size={16} color="#8B5CF6" />
             </div>
             <div>
@@ -210,7 +210,7 @@ export default function AnaliseClient(p: Props) {
           </div>
         </motion.div>
 
-        <motion.div variants={fadeUp} className="rounded-2xl bg-[#F5F3FF] border border-purple-100 p-4 flex gap-3">
+        <motion.div variants={fadeUp} className="rounded-2xl bg-[var(--tint-purple-bg)] border border-purple-100 p-4 flex gap-3">
           <Handshake size={18} color="#8B5CF6" className="flex-shrink-0 mt-0.5" />
           <p className="text-[11px] text-purple-900 leading-relaxed">
             A análise de reciprocidade é um apoio para desenvolver relacionamentos — não uma obrigação.

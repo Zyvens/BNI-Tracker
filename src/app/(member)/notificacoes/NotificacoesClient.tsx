@@ -18,10 +18,10 @@ type Notif = {
 };
 
 const TIPO_STYLE: Record<string, { icon: any; color: string; bg: string }> = {
-  critico: { icon: AlertTriangle, color: "#CC0000", bg: "#FFF1F1" },
-  alerta: { icon: AlertTriangle, color: "#D97706", bg: "#FFFBEB" },
-  confirmacao: { icon: BadgeDollarSign, color: "#2563EB", bg: "#EFF6FF" },
-  info: { icon: Info, color: "#6B7280", bg: "#F5F5F7" },
+  critico: { icon: AlertTriangle, color: "#CC0000", bg: "var(--tint-red-bg)" },
+  alerta: { icon: AlertTriangle, color: "#D97706", bg: "var(--tint-amber-bg)" },
+  confirmacao: { icon: BadgeDollarSign, color: "#2563EB", bg: "var(--tint-blue-bg)" },
+  info: { icon: Info, color: "#6B7280", bg: "var(--color-track-soft)" },
 };
 
 export default function NotificacoesClient({ notifications }: { notifications: Notif[] }) {
@@ -63,7 +63,7 @@ export default function NotificacoesClient({ notifications }: { notifications: N
             <motion.div
               variants={fadeUp}
               className="bg-surface rounded-2xl shadow-sm border p-4 flex gap-3"
-              style={{ borderColor: n.read ? "#F3F4F6" : st.color + "44" }}
+              style={{ borderColor: n.read ? "var(--color-border)" : st.color + "44" }}
             >
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: st.bg }}>
                 <Icon size={16} color={st.color} strokeWidth={2} />

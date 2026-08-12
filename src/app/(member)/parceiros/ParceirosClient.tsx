@@ -72,7 +72,7 @@ export default function ParceirosClient({ partners }: { partners: Partner[] }) {
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowNew(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full touch-manipulation"
-              style={{ backgroundColor: "#FFF1F1" }}
+              style={{ backgroundColor: "var(--tint-red-bg)" }}
             >
               <Plus size={14} color="#CC0000" strokeWidth={2.5} />
               <span className="text-[11px] font-bold text-primary">Novo</span>
@@ -147,8 +147,8 @@ export default function ParceirosClient({ partners }: { partners: Partner[] }) {
                 onClick={() => action(p.id, { action: "thanked" })}
                 className="w-full h-10 rounded-xl mt-3 flex items-center justify-center gap-1.5 touch-manipulation border transition-colors"
                 style={{
-                  backgroundColor: thanked ? "#F0FDF4" : "#FFF1F1",
-                  borderColor: thanked ? "#BBF7D0" : "#FECACA",
+                  backgroundColor: thanked ? "var(--tint-green-bg)" : "var(--tint-red-bg)",
+                  borderColor: thanked ? "var(--tint-green-border)" : "var(--tint-red-border)",
                 }}
               >
                 <CheckCircle2 size={14} color={thanked ? "#16A34A" : "#CC0000"} />
@@ -241,7 +241,7 @@ function NewPartnerSheet({ onClose, onSaved }: { onClose: () => void; onSaved: (
           <input className={input} placeholder="De onde é (ex: outro grupo de networking)" value={company} onChange={(e) => setCompany(e.target.value)} />
           <input className={input} placeholder="Telefone" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
           <textarea rows={2} className={`${input} resize-none`} placeholder="Observações" value={notes} onChange={(e) => setNotes(e.target.value)} />
-          {error && <p className="text-[12px] font-semibold text-primary bg-[#FFF1F1] rounded-xl px-3 py-2">{error}</p>}
+          {error && <p className="text-[12px] font-semibold text-primary bg-[var(--tint-red-bg)] rounded-xl px-3 py-2">{error}</p>}
           <div className="flex gap-3 pb-4">
             <motion.button whileTap={{ scale: 0.96 }} onClick={onClose} className="flex-1 h-12 rounded-2xl bg-background flex items-center justify-center touch-manipulation">
               <span className="text-text-muted font-semibold text-[14px]">Cancelar</span>

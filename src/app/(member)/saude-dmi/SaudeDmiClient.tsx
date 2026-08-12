@@ -76,7 +76,7 @@ export default function SaudeDmiClient(p: Props) {
             <motion.div
               whileTap={{ scale: 0.9 }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full touch-manipulation"
-              style={{ backgroundColor: "#FFF1F1" }}
+              style={{ backgroundColor: "var(--tint-red-bg)" }}
             >
               <Zap size={14} color="#CC0000" strokeWidth={2.5} />
               <span className="text-[11px] font-bold text-primary">Registrar</span>
@@ -90,7 +90,7 @@ export default function SaudeDmiClient(p: Props) {
         <motion.div
           variants={fadeUp}
           className="bg-surface rounded-3xl shadow-sm border overflow-hidden"
-          style={{ borderColor: p.reds > 0 ? "#FECACA" : "#E5E7EB" }}
+          style={{ borderColor: p.reds > 0 ? "var(--tint-red-border)" : "var(--color-border-strong)" }}
         >
           <div
             className="h-2 w-full"
@@ -150,8 +150,8 @@ export default function SaudeDmiClient(p: Props) {
               variants={fadeUp}
               className="rounded-2xl shadow-sm border overflow-hidden"
               style={{
-                backgroundColor: critical ? "#FFF1F1" : "#FFFFFF",
-                borderColor: critical ? "#FECACA" : "#E5E7EB",
+                backgroundColor: critical ? "var(--tint-red-bg)" : "var(--color-surface)",
+                borderColor: critical ? "var(--tint-red-border)" : "var(--color-border-strong)",
               }}
             >
               <div className="h-1 w-full" style={{ backgroundColor: critical ? "#CC0000" : c.color + "66" }} />
@@ -159,7 +159,7 @@ export default function SaudeDmiClient(p: Props) {
                 <div className="flex items-center gap-3">
                   <div
                     className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: critical ? "#FEE2E2" : c.bg }}
+                    style={{ backgroundColor: critical ? "var(--tint-red-bg-strong)" : c.bg }}
                   >
                     <Icon size={20} color={c.color} strokeWidth={2} />
                   </div>
@@ -171,7 +171,7 @@ export default function SaudeDmiClient(p: Props) {
                   </div>
                   <div
                     className="flex items-center gap-1.5 px-2.5 py-1 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: critical ? "#FEE2E2" : c.bg }}
+                    style={{ backgroundColor: critical ? "var(--tint-red-bg-strong)" : c.bg }}
                   >
                     <span className="text-[12px]">{c.emoji}</span>
                     <span className="text-[13px] font-extrabold font-display" style={{ color: c.color }}>
@@ -202,7 +202,7 @@ export default function SaudeDmiClient(p: Props) {
 
                 <div
                   className="rounded-xl px-3 py-2.5 flex items-start gap-2"
-                  style={{ backgroundColor: critical ? "#FEE2E2" : c.bg }}
+                  style={{ backgroundColor: critical ? "var(--tint-red-bg-strong)" : c.bg }}
                 >
                   {critical ? (
                     <AlertTriangle size={14} color="#CC0000" strokeWidth={2} className="flex-shrink-0 mt-0.5" />

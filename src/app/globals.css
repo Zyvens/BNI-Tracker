@@ -20,6 +20,25 @@
   --color-track: #e5e7eb;
   --color-track-soft: #f3f4f6;
   --color-icon-muted: #d1d5db;
+
+  /* Fundos/bordas suaves usados nos cards de status e KPI (semáforo, chips,
+     ícones em círculo, caixas de dica) — a cor de destaque (texto/ícone) em si
+     continua fixa, só o "banho" claro por trás muda por tema. */
+  --tint-red-bg: #fff1f1;
+  --tint-red-bg-strong: #fee2e2;
+  --tint-red-border: #fecaca;
+  --tint-amber-bg: #fffbeb;
+  --tint-amber-border: #fde68a;
+  --tint-green-bg: #f0fdf4;
+  --tint-green-border: #bbf7d0;
+  --tint-blue-bg: #eff6ff;
+  --tint-blue-border: #bfdbfe;
+  --tint-purple-bg: #f5f3ff;
+  --tint-purple-border: #ddd6fe;
+  --tint-pink-bg: #fdf2f8;
+  --tint-pink-border: #fbcfe8;
+  --tint-sky-bg: #f0f9ff;
+  --tint-sky-border: #bae6fd;
 }
 
 [data-theme="dark"] {
@@ -33,6 +52,22 @@
   --color-track: #2a2a2e;
   --color-track-soft: #201f23;
   --color-icon-muted: #4b4b52;
+
+  --tint-red-bg: #341a1b;
+  --tint-red-bg-strong: #47201f;
+  --tint-red-border: #5c2b2a;
+  --tint-amber-bg: #332913;
+  --tint-amber-border: #55451c;
+  --tint-green-bg: #142a1d;
+  --tint-green-border: #1f4a30;
+  --tint-blue-bg: #16233d;
+  --tint-blue-border: #223a61;
+  --tint-purple-bg: #241d3d;
+  --tint-purple-border: #392c5e;
+  --tint-pink-bg: #34182c;
+  --tint-pink-border: #55234a;
+  --tint-sky-bg: #122a38;
+  --tint-sky-border: #1d4256;
 }
 
 [data-theme="blue-moon"] {
@@ -46,6 +81,22 @@
   --color-track: #1b2843;
   --color-track-soft: #142033;
   --color-icon-muted: #48587e;
+
+  --tint-red-bg: #35202c;
+  --tint-red-bg-strong: #472a39;
+  --tint-red-border: #5a3247;
+  --tint-amber-bg: #332a1e;
+  --tint-amber-border: #554723;
+  --tint-green-bg: #12291f;
+  --tint-green-border: #1d4a37;
+  --tint-blue-bg: #1a2c4d;
+  --tint-blue-border: #2c4470;
+  --tint-purple-bg: #241f42;
+  --tint-purple-border: #393163;
+  --tint-pink-bg: #331f3f;
+  --tint-pink-border: #4f2e5c;
+  --tint-sky-bg: #142a3d;
+  --tint-sky-border: #1f4560;
 }
 
 html,
@@ -101,4 +152,25 @@ input[type="number"]::-webkit-inner-spin-button {
 [data-theme="dark"] .text-gray-300,
 [data-theme="blue-moon"] .text-gray-300 {
   color: var(--color-icon-muted);
+}
+
+/* Idem para os cantos que usam a paleta clara "crua" do Tailwind (green-50,
+ * red-50, etc.) como banho de fundo de cards/chips de status, em vez das
+ * classes arbitrárias já cobertas pelas variáveis --tint-*. */
+[data-theme="dark"] .bg-green-50, [data-theme="blue-moon"] .bg-green-50,
+[data-theme="dark"] .bg-red-50, [data-theme="blue-moon"] .bg-red-50,
+[data-theme="dark"] .bg-amber-50, [data-theme="blue-moon"] .bg-amber-50,
+[data-theme="dark"] .bg-blue-50, [data-theme="blue-moon"] .bg-blue-50,
+[data-theme="dark"] .bg-purple-50, [data-theme="blue-moon"] .bg-purple-50,
+[data-theme="dark"] .bg-pink-50, [data-theme="blue-moon"] .bg-pink-50,
+[data-theme="dark"] .bg-sky-50, [data-theme="blue-moon"] .bg-sky-50 {
+  background-color: var(--color-track-soft);
+}
+[data-theme="dark"] .border-green-200, [data-theme="blue-moon"] .border-green-200,
+[data-theme="dark"] .border-red-200, [data-theme="blue-moon"] .border-red-200,
+[data-theme="dark"] .border-amber-200, [data-theme="blue-moon"] .border-amber-200,
+[data-theme="dark"] .border-blue-200, [data-theme="blue-moon"] .border-blue-200,
+[data-theme="dark"] .border-purple-100, [data-theme="blue-moon"] .border-purple-100,
+[data-theme="dark"] .border-purple-200, [data-theme="blue-moon"] .border-purple-200 {
+  border-color: var(--color-border-strong);
 }

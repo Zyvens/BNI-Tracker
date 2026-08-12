@@ -44,7 +44,7 @@ export default function TrocarSenhaPage() {
         className="w-full max-w-sm"
       >
         <div className="text-center mb-6">
-          <div className="w-14 h-14 rounded-3xl bg-[#FFF1F1] mx-auto mb-3 flex items-center justify-center">
+          <div className="w-14 h-14 rounded-3xl bg-[var(--tint-red-bg)] mx-auto mb-3 flex items-center justify-center">
             <KeyRound size={24} color="#CC0000" />
           </div>
           <h1 className="text-xl font-extrabold text-text-main font-display">Defina sua nova senha</h1>
@@ -68,7 +68,7 @@ export default function TrocarSenhaPage() {
             onChange={(e) => setConfirm(e.target.value)}
           />
           {error && (
-            <p className="text-[12px] font-semibold text-primary bg-[#FFF1F1] rounded-xl px-3 py-2">{error}</p>
+            <p className="text-[12px] font-semibold text-primary bg-[var(--tint-red-bg)] rounded-xl px-3 py-2">{error}</p>
           )}
           <motion.button
             whileTap={{ scale: 0.96 }}

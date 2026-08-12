@@ -6,9 +6,9 @@ import LogoutButton from "@/components/LogoutButton";
 import { scoreSemaforoStatus } from "@/lib/engine";
 
 export const STATUS_COLORS = {
-  green: { color: "#22C55E", bg: "#F0FDF4", border: "#D1FAE5", emoji: "🟢", label: "Meta atingida ✓" },
-  yellow: { color: "#F59E0B", bg: "#FFFBEB", border: "#FDE68A", emoji: "🟡", label: "Atenção" },
-  red: { color: "#CC0000", bg: "#FFF1F1", border: "#FECACA", emoji: "🔴", label: "Abaixo da meta" },
+  green: { color: "#22C55E", bg: "var(--tint-green-bg)", border: "var(--tint-green-border)", emoji: "🟢", label: "Meta atingida ✓" },
+  yellow: { color: "#F59E0B", bg: "var(--tint-amber-bg)", border: "var(--tint-amber-border)", emoji: "🟡", label: "Atenção" },
+  red: { color: "#CC0000", bg: "var(--tint-red-bg)", border: "var(--tint-red-border)", emoji: "🔴", label: "Abaixo da meta" },
 } as const;
 
 export type StatusKey = keyof typeof STATUS_COLORS;
@@ -32,10 +32,10 @@ export const stagger = {
 // ganha o tratamento especial "Clube 100" (dourado, com brilho); 70-99 verde;
 // 40-69 amarelo; <40 vermelho — nunca mais um vermelho binário só "abaixo de 100".
 const RING_TIERS = {
-  gold: { stroke: "#F59E0B", track: "#FEF3C7", text: "#D97706", glow: "rgba(245,158,11,0.7)", textGlow: "rgba(245,158,11,0.4)" },
-  green: { stroke: "#22C55E", track: "#DCFCE7", text: "#16A34A", glow: "rgba(34,197,94,0.6)", textGlow: "rgba(34,197,94,0.35)" },
-  yellow: { stroke: "#F59E0B", track: "#FEF3C7", text: "#D97706", glow: "rgba(245,158,11,0.6)", textGlow: "rgba(245,158,11,0.35)" },
-  red: { stroke: "#CC0000", track: "#F0E0E0", text: "#CC0000", glow: "rgba(204,0,0,0.4)", textGlow: "rgba(204,0,0,0.2)" },
+  gold: { stroke: "#F59E0B", track: "var(--tint-amber-bg)", text: "#D97706", glow: "rgba(245,158,11,0.7)", textGlow: "rgba(245,158,11,0.4)" },
+  green: { stroke: "#22C55E", track: "var(--tint-green-bg)", text: "#16A34A", glow: "rgba(34,197,94,0.6)", textGlow: "rgba(34,197,94,0.35)" },
+  yellow: { stroke: "#F59E0B", track: "var(--tint-amber-bg)", text: "#D97706", glow: "rgba(245,158,11,0.6)", textGlow: "rgba(245,158,11,0.35)" },
+  red: { stroke: "#CC0000", track: "var(--tint-red-bg)", text: "#CC0000", glow: "rgba(204,0,0,0.4)", textGlow: "rgba(204,0,0,0.2)" },
 } as const;
 
 // Anel grande de pontuação (dashboard). Segue as mesmas faixas de cor do semáforo

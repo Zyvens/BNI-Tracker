@@ -62,7 +62,7 @@ export default function ContatoClient({ other, stats, refsGivenByMe, refsGivenBy
         {/* Testemunhos bilaterais */}
         <motion.div variants={fadeUp} className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-xl bg-[#F5F3FF] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[var(--tint-purple-bg)] flex items-center justify-center">
               <MessageSquareQuote size={15} color="#8B5CF6" />
             </div>
             <p className="text-[13px] font-extrabold text-text-main font-display">Testemunhos</p>

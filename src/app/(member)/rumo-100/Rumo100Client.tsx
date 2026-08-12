@@ -7,9 +7,9 @@ import { PageHeader, ScoreRing, STATUS_COLORS, StatusKey, fmtMoney, fadeUp, stag
 // Semáforo de urgência por margem em meses: vermelho = zero margem (aja agora),
 // amarelo = margem só até o mês seguinte, azul = 3+ meses de margem de segurança.
 const URGENCY_STYLE: Record<string, { bg: string; border: string; color: string; dot: string; tag: string }> = {
-  critical: { bg: "#FFF1F1", border: "#FECACA", color: "#CC0000", dot: "🔴", tag: "Ação imediata" },
-  urgent: { bg: "#FFFBEB", border: "#FDE68A", color: "#D97706", dot: "🟡", tag: "Atenção" },
-  watch: { bg: "#EFF6FF", border: "#BFDBFE", color: "#2563EB", dot: "🔵", tag: "Margem segura" },
+  critical: { bg: "var(--tint-red-bg)", border: "var(--tint-red-border)", color: "#CC0000", dot: "🔴", tag: "Ação imediata" },
+  urgent: { bg: "var(--tint-amber-bg)", border: "var(--tint-amber-border)", color: "#D97706", dot: "🟡", tag: "Atenção" },
+  watch: { bg: "var(--tint-blue-bg)", border: "var(--tint-blue-border)", color: "#2563EB", dot: "🔵", tag: "Margem segura" },
 };
 
 type Action = {

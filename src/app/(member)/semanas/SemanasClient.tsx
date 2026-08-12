@@ -43,9 +43,9 @@ type Props = {
 };
 
 function presStyle(presenca: string) {
-  if (presenca === "Aus") return { color: "#CC0000", bg: "#FFF1F1", label: "Ausência" };
-  if (presenca === "Subs") return { color: "#F59E0B", bg: "#FFFBEB", label: "Substituto" };
-  return { color: "#22C55E", bg: "#F0FDF4", label: "Presente" };
+  if (presenca === "Aus") return { color: "#CC0000", bg: "var(--tint-red-bg)", label: "Ausência" };
+  if (presenca === "Subs") return { color: "#F59E0B", bg: "var(--tint-amber-bg)", label: "Substituto" };
+  return { color: "#22C55E", bg: "var(--tint-green-bg)", label: "Presente" };
 }
 
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
@@ -146,7 +146,7 @@ export default function SemanasClient(p: Props) {
         {/* Atualização semanal */}
         <div className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-xl bg-[#F5F3FF] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[var(--tint-purple-bg)] flex items-center justify-center">
               <NotebookPen size={15} color="#8B5CF6" />
             </div>
             <div>

@@ -86,7 +86,7 @@ export default function LoginPage() {
             </div>
           </div>
           {error && (
-            <p className="text-[12px] font-semibold text-primary bg-[#FFF1F1] rounded-xl px-3 py-2">{error}</p>
+            <p className="text-[12px] font-semibold text-primary bg-[var(--tint-red-bg)] rounded-xl px-3 py-2">{error}</p>
           )}
           <motion.button
             whileTap={{ scale: 0.96 }}

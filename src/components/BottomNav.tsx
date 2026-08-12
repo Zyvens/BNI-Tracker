@@ -15,10 +15,10 @@ import { scoreSemaforoStatus } from "@/lib/engine";
 // Mesma faixa de cor do semáforo usada em todo o app (ver ScoreRing em ui.tsx):
 // >=100 dourado (Clube 100), 70-99 verde, 40-69 amarelo, <40 vermelho.
 const RING_COLORS = {
-  gold: { stroke: "#F59E0B", track: "#FEF3C7", text: "#D97706", glow: "rgba(245,158,11,0.6)" },
-  green: { stroke: "#22C55E", track: "#DCFCE7", text: "#16A34A", glow: "rgba(34,197,94,0.5)" },
-  yellow: { stroke: "#F59E0B", track: "#FEF3C7", text: "#D97706", glow: "rgba(245,158,11,0.5)" },
-  red: { stroke: "#CC0000", track: "#F0E0E0", text: "#CC0000", glow: "rgba(204,0,0,0.35)" },
+  gold: { stroke: "#F59E0B", track: "var(--tint-amber-bg)", text: "#D97706", glow: "rgba(245,158,11,0.6)" },
+  green: { stroke: "#22C55E", track: "var(--tint-green-bg)", text: "#16A34A", glow: "rgba(34,197,94,0.5)" },
+  yellow: { stroke: "#F59E0B", track: "var(--tint-amber-bg)", text: "#D97706", glow: "rgba(245,158,11,0.5)" },
+  red: { stroke: "#CC0000", track: "var(--tint-red-bg)", text: "#CC0000", glow: "rgba(204,0,0,0.35)" },
 } as const;
 
 const TABS = [

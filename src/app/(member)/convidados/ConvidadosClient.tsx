@@ -71,7 +71,7 @@ export default function ConvidadosClient({ people, visitsPerSemester }: { people
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowNew(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full touch-manipulation"
-              style={{ backgroundColor: "#FFF1F1" }}
+              style={{ backgroundColor: "var(--tint-red-bg)" }}
             >
               <Plus size={14} color="#CC0000" strokeWidth={2.5} />
               <span className="text-[11px] font-bold text-primary">Novo</span>
@@ -96,7 +96,7 @@ export default function ConvidadosClient({ people, visitsPerSemester }: { people
           ))}
         </motion.div>
 
-        <motion.div variants={fadeUp} className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-2xl px-3.5 py-2.5">
+        <motion.div variants={fadeUp} className="bg-[var(--tint-blue-bg)] border border-[var(--tint-blue-border)] rounded-2xl px-3.5 py-2.5">
           <p className="text-[11px] font-semibold text-[#2563EB]">
             Regra da equipe: cada convidado pode visitar até {visitsPerSemester}x por semestre. No semestre seguinte, o limite libera de novo.
           </p>
@@ -113,10 +113,10 @@ export default function ConvidadosClient({ people, visitsPerSemester }: { people
         {people.map((p) => {
           const open = openKey === p.key;
           const limitStyle = p.limitReached
-            ? { bg: "#FFF1F1", border: "#FECACA", color: "#CC0000", label: `Limite atingido (${p.currentSemesterCount}/${visitsPerSemester})` }
+            ? { bg: "var(--tint-red-bg)", border: "var(--tint-red-border)", color: "#CC0000", label: `Limite atingido (${p.currentSemesterCount}/${visitsPerSemester})` }
             : p.currentSemesterCount > 0
-              ? { bg: "#FFFBEB", border: "#FDE68A", color: "#D97706", label: `${p.currentSemesterCount}/${visitsPerSemester} este semestre` }
-              : { bg: "#F0FDF4", border: "#BBF7D0", color: "#16A34A", label: "Liberado este semestre" };
+              ? { bg: "var(--tint-amber-bg)", border: "var(--tint-amber-border)", color: "#D97706", label: `${p.currentSemesterCount}/${visitsPerSemester} este semestre` }
+              : { bg: "var(--tint-green-bg)", border: "var(--tint-green-border)", color: "#16A34A", label: "Liberado este semestre" };
           return (
             <motion.div key={p.key} variants={fadeUp} className="bg-surface rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <button
@@ -162,7 +162,7 @@ export default function ConvidadosClient({ people, visitsPerSemester }: { people
                                 className="px-2 py-0.5 rounded-full text-[9px] font-bold"
                                 style={{
                                   color: v.overLimit ? "#CC0000" : "#2563EB",
-                                  backgroundColor: v.overLimit ? "#FFF1F1" : "#EFF6FF",
+                                  backgroundColor: v.overLimit ? "var(--tint-red-bg)" : "var(--tint-blue-bg)",
                                 }}
                               >
                                 {v.overLimit ? `⚠ ${v.visitOrder}ª do semestre (excede limite)` : `${v.visitOrder}ª do semestre`}
@@ -207,7 +207,7 @@ function Pill({ active, label, onClick, color = "#2563EB" }: { active: boolean; 
       onClick={onClick}
       className="px-2.5 py-1.5 rounded-full text-[11px] font-bold touch-manipulation border transition-colors"
       style={{
-        backgroundColor: active ? color + "18" : "#F5F5F7",
+        backgroundColor: active ? color + "18" : "var(--color-track-soft)",
         borderColor: active ? color : "transparent",
         color: active ? color : "#8A8A8E",
       }}
@@ -298,7 +298,7 @@ function NewGuestSheet({ onClose, onSaved }: { onClose: () => void; onSaved: () 
             </div>
           </div>
           <textarea rows={2} className={`${input} resize-none`} placeholder="Observações e próximos passos" value={notes} onChange={(e) => setNotes(e.target.value)} />
-          {error && <p className="text-[12px] font-semibold text-primary bg-[#FFF1F1] rounded-xl px-3 py-2">{error}</p>}
+          {error && <p className="text-[12px] font-semibold text-primary bg-[var(--tint-red-bg)] rounded-xl px-3 py-2">{error}</p>}
           <div className="flex gap-3 pb-4">
             <motion.button whileTap={{ scale: 0.96 }} onClick={onClose} className="flex-1 h-12 rounded-2xl bg-background flex items-center justify-center touch-manipulation">
               <span className="text-text-muted font-semibold text-[14px]">Cancelar</span>

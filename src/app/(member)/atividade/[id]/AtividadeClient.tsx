@@ -29,31 +29,31 @@ import {
 import type { FeedItem } from "@/lib/feed";
 
 const STATUS_STYLE: Record<string, { label: string; color: string; bg: string; icon: any }> = {
-  convertida: { label: "Convertida", color: "#22C55E", bg: "#F0FDF4", icon: CheckCircle2 },
-  em_andamento: { label: "Em Andamento", color: "#F59E0B", bg: "#FFFBEB", icon: Clock },
-  perdida: { label: "Perdida", color: "#CC0000", bg: "#FFF1F1", icon: AlertCircle },
-  realizado: { label: "Realizado", color: "#22C55E", bg: "#F0FDF4", icon: CheckCircle2 },
-  pendente: { label: "Pendente", color: "#F59E0B", bg: "#FFFBEB", icon: Clock },
+  convertida: { label: "Convertida", color: "#22C55E", bg: "var(--tint-green-bg)", icon: CheckCircle2 },
+  em_andamento: { label: "Em Andamento", color: "#F59E0B", bg: "var(--tint-amber-bg)", icon: Clock },
+  perdida: { label: "Perdida", color: "#CC0000", bg: "var(--tint-red-bg)", icon: AlertCircle },
+  realizado: { label: "Realizado", color: "#22C55E", bg: "var(--tint-green-bg)", icon: CheckCircle2 },
+  pendente: { label: "Pendente", color: "#F59E0B", bg: "var(--tint-amber-bg)", icon: Clock },
 };
 
 const ORIGEM_STYLE: Record<string, { label: string; color: string; bg: string }> = {
-  direto: { label: "Referência Direta", color: "#CC0000", bg: "#FFF1F1" },
-  clube_permuta: { label: "Clube de Permuta", color: "#8B5CF6", bg: "#F5F3FF" },
-  parceria: { label: "Parceria Estratégica", color: "#0EA5E9", bg: "#F0F9FF" },
+  direto: { label: "Referência Direta", color: "#CC0000", bg: "var(--tint-red-bg)" },
+  clube_permuta: { label: "Clube de Permuta", color: "#8B5CF6", bg: "var(--tint-purple-bg)" },
+  parceria: { label: "Parceria Estratégica", color: "#0EA5E9", bg: "var(--tint-sky-bg)" },
 };
 
 function tipoMeta(tipo: string) {
   switch (tipo) {
     case "dada":
-      return { label: "Referência Dada", sublabel: "Você gerou valor para um membro", color: "#22C55E", bg: "#F0FDF4", Icon: Send, badgeLabel: "Dei" };
+      return { label: "Referência Dada", sublabel: "Você gerou valor para um membro", color: "#22C55E", bg: "var(--tint-green-bg)", Icon: Send, badgeLabel: "Dei" };
     case "recebida":
-      return { label: "Referência Recebida", sublabel: "Um membro gerou valor para você", color: "#CC0000", bg: "#FFF1F1", Icon: Inbox, badgeLabel: "Recebi" };
+      return { label: "Referência Recebida", sublabel: "Um membro gerou valor para você", color: "#CC0000", bg: "var(--tint-red-bg)", Icon: Inbox, badgeLabel: "Recebi" };
     case "reuniao_1a1":
-      return { label: "Reunião 1-a-1", sublabel: "Reunião de networking realizada", color: "#8B5CF6", bg: "#F5F3FF", Icon: Users, badgeLabel: "1-a-1" };
+      return { label: "Reunião 1-a-1", sublabel: "Reunião de networking realizada", color: "#8B5CF6", bg: "var(--tint-purple-bg)", Icon: Users, badgeLabel: "1-a-1" };
     case "agradecimento_dado":
-      return { label: "Agradecimento Dado", sublabel: "Você agradeceu por negócio fechado", color: "#F59E0B", bg: "#FFFBEB", Icon: HeartHandshake, badgeLabel: "Agradeci" };
+      return { label: "Agradecimento Dado", sublabel: "Você agradeceu por negócio fechado", color: "#F59E0B", bg: "var(--tint-amber-bg)", Icon: HeartHandshake, badgeLabel: "Agradeci" };
     default:
-      return { label: "Agradecimento Recebido", sublabel: "Membro agradeceu a você", color: "#0EA5E9", bg: "#F0F9FF", Icon: HeartHandshake, badgeLabel: "Recebi" };
+      return { label: "Agradecimento Recebido", sublabel: "Membro agradeceu a você", color: "#0EA5E9", bg: "var(--tint-sky-bg)", Icon: HeartHandshake, badgeLabel: "Recebi" };
   }
 }
 
@@ -231,7 +231,7 @@ export default function AtividadeClient({ item }: { item: FeedItem | null }) {
             <div className="flex items-center gap-3 px-4 py-3.5 border-b border-gray-50">
               <div
                 className="w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: expired ? "#FFF1F1" : urgent ? "#FFFBEB" : "#F0FDF4" }}
+                style={{ backgroundColor: expired ? "var(--tint-red-bg)" : urgent ? "var(--tint-amber-bg)" : "var(--tint-green-bg)" }}
               >
                 <Clock size={16} color={expired ? "#CC0000" : urgent ? "#F59E0B" : "#22C55E"} strokeWidth={2} />
               </div>
@@ -249,7 +249,7 @@ export default function AtividadeClient({ item }: { item: FeedItem | null }) {
                 </p>
               </div>
               {(expired || urgent) && (
-                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: expired ? "#FFF1F1" : "#FFFBEB" }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: expired ? "var(--tint-red-bg)" : "var(--tint-amber-bg)" }}>
                   <AlertCircle size={16} color={expired ? "#CC0000" : "#F59E0B"} strokeWidth={2} />
                 </div>
               )}
@@ -333,13 +333,13 @@ export default function AtividadeClient({ item }: { item: FeedItem | null }) {
           <p className="text-[11px] font-bold uppercase tracking-wider text-text-muted px-1">Ações Rápidas</p>
           <div className="grid grid-cols-2 gap-3">
             <motion.button whileTap={{ scale: 0.95 }} className="bg-surface rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col items-center gap-2 touch-manipulation">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#F0F9FF" }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "var(--tint-sky-bg)" }}>
                 <MessageCircle size={18} color="#0EA5E9" strokeWidth={2} />
               </div>
               <span className="text-[12px] font-semibold text-text-main text-center leading-tight">Enviar Mensagem</span>
             </motion.button>
             <motion.button whileTap={{ scale: 0.95 }} className="bg-surface rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col items-center gap-2 touch-manipulation">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#F0FDF4" }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "var(--tint-green-bg)" }}>
                 <Phone size={18} color="#22C55E" strokeWidth={2} />
               </div>
               <span className="text-[12px] font-semibold text-text-main text-center leading-tight">Ligar Agora</span>
@@ -398,7 +398,7 @@ function InfoRow({
 }) {
   return (
     <div className={`flex items-center gap-3 px-4 py-3.5 ${last ? "" : "border-b border-gray-50"}`}>
-      <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: tint?.bg ?? "#F5F5F7" }}>
+      <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: tint?.bg ?? "var(--color-track-soft)" }}>
         <Icon size={16} color={tint?.color ?? "#8A8A8E"} strokeWidth={2} />
       </div>
       <div className="flex-1">

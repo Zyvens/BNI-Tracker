@@ -100,7 +100,7 @@ export default function NewReferralSheet({
                 onClick={() => setDirecao(d)}
                 className="h-11 rounded-xl text-[12px] font-bold touch-manipulation border-2 transition-colors"
                 style={{
-                  backgroundColor: direcao === d ? "#FFF1F1" : "#F5F5F7",
+                  backgroundColor: direcao === d ? "var(--tint-red-bg)" : "var(--color-track-soft)",
                   borderColor: direcao === d ? "#CC0000" : "transparent",
                   color: direcao === d ? "#CC0000" : "#8A8A8E",
                 }}
@@ -160,7 +160,7 @@ export default function NewReferralSheet({
             <textarea rows={2} className={`${inputCls} resize-none`} value={notes} onChange={(e) => setNotes(e.target.value)} />
           </Field>
 
-          {error && <p className="text-[12px] font-semibold text-primary bg-[#FFF1F1] rounded-xl px-3 py-2">{error}</p>}
+          {error && <p className="text-[12px] font-semibold text-primary bg-[var(--tint-red-bg)] rounded-xl px-3 py-2">{error}</p>}
 
           <div className="flex gap-3 pb-4">
             <motion.button whileTap={{ scale: 0.96 }} onClick={onClose} className="flex-1 h-12 rounded-2xl bg-background flex items-center justify-center touch-manipulation">

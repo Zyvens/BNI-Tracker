@@ -170,7 +170,7 @@ export default function MembrosClient({ members }: { members: Member[] }) {
             whileTap={{ scale: 0.9 }}
             onClick={() => setShowNew(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full touch-manipulation flex-shrink-0"
-            style={{ backgroundColor: "#FFF1F1" }}
+            style={{ backgroundColor: "var(--tint-red-bg)" }}
           >
             <Plus size={14} color="#CC0000" strokeWidth={2.5} />
             <span className="text-[11px] font-bold text-primary">Cadastrar membro</span>
@@ -213,7 +213,7 @@ export default function MembrosClient({ members }: { members: Member[] }) {
                 title="Enviar acesso"
                 onClick={() => openSend(m)}
                 className="w-9 h-9 rounded-full flex items-center justify-center touch-manipulation"
-                style={{ backgroundColor: "#F0FDF4" }}
+                style={{ backgroundColor: "var(--tint-green-bg)" }}
               >
                 <Send size={15} color="#16A34A" />
               </button>
@@ -221,7 +221,7 @@ export default function MembrosClient({ members }: { members: Member[] }) {
                 title="Excluir membro"
                 onClick={() => setDeleteConfirmFor(m)}
                 className="w-9 h-9 rounded-full flex items-center justify-center touch-manipulation"
-                style={{ backgroundColor: "#FFF1F1" }}
+                style={{ backgroundColor: "var(--tint-red-bg)" }}
               >
                 <Trash2 size={15} color="#CC0000" />
               </button>
@@ -458,7 +458,7 @@ function NewMemberSheet({
       <p className="text-[10px] text-text-muted">
         Usuário e senha são gerados automaticamente. Você poderá enviá-los ao membro na tela seguinte.
       </p>
-      {error && <p className="text-[12px] font-semibold text-primary bg-[#FFF1F1] rounded-xl px-3 py-2">{error}</p>}
+      {error && <p className="text-[12px] font-semibold text-primary bg-[var(--tint-red-bg)] rounded-xl px-3 py-2">{error}</p>}
       <div className="flex gap-3 pb-4">
         <motion.button whileTap={{ scale: 0.96 }} onClick={onClose} className="flex-1 h-12 rounded-2xl bg-background flex items-center justify-center touch-manipulation">
           <span className="text-text-muted font-semibold text-[14px]">Cancelar</span>
@@ -528,7 +528,7 @@ function EditMemberSheet({
         <span className="text-[13px] font-semibold text-text-main">Membro ativo</span>
         <div
           className="w-11 h-6 rounded-full transition-colors relative"
-          style={{ backgroundColor: active ? "#22C55E" : "#E5E7EB" }}
+          style={{ backgroundColor: active ? "#22C55E" : "var(--color-track)" }}
         >
           <motion.div
             className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow"
@@ -537,7 +537,7 @@ function EditMemberSheet({
           />
         </div>
       </button>
-      {error && <p className="text-[12px] font-semibold text-primary bg-[#FFF1F1] rounded-xl px-3 py-2">{error}</p>}
+      {error && <p className="text-[12px] font-semibold text-primary bg-[var(--tint-red-bg)] rounded-xl px-3 py-2">{error}</p>}
       <div className="flex gap-3 pb-4">
         <motion.button whileTap={{ scale: 0.96 }} onClick={onClose} className="flex-1 h-12 rounded-2xl bg-background flex items-center justify-center touch-manipulation">
           <span className="text-text-muted font-semibold text-[14px]">Cancelar</span>

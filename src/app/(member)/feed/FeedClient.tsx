@@ -38,27 +38,27 @@ const FILTERS = [
 ];
 
 const STATUS_STYLE: Record<string, { label: string; color: string; bg: string; icon: any }> = {
-  convertida: { label: "Convertida", color: "#22C55E", bg: "#F0FDF4", icon: CheckCircle2 },
-  em_andamento: { label: "Em andamento", color: "#F59E0B", bg: "#FFFBEB", icon: Clock },
-  perdida: { label: "Perdida", color: "#CC0000", bg: "#FFF1F1", icon: AlertCircle },
-  realizado: { label: "Realizado", color: "#22C55E", bg: "#F0FDF4", icon: CheckCircle2 },
-  pendente: { label: "Pendente", color: "#F59E0B", bg: "#FFFBEB", icon: Clock },
+  convertida: { label: "Convertida", color: "#22C55E", bg: "var(--tint-green-bg)", icon: CheckCircle2 },
+  em_andamento: { label: "Em andamento", color: "#F59E0B", bg: "var(--tint-amber-bg)", icon: Clock },
+  perdida: { label: "Perdida", color: "#CC0000", bg: "var(--tint-red-bg)", icon: AlertCircle },
+  realizado: { label: "Realizado", color: "#22C55E", bg: "var(--tint-green-bg)", icon: CheckCircle2 },
+  pendente: { label: "Pendente", color: "#F59E0B", bg: "var(--tint-amber-bg)", icon: Clock },
 };
 
 function tipoStyle(tipo: string) {
   switch (tipo) {
     case "dada":
-      return { label: "Ref. Dada", color: "#22C55E", bg: "#F0FDF4", icon: Send };
+      return { label: "Ref. Dada", color: "#22C55E", bg: "var(--tint-green-bg)", icon: Send };
     case "recebida":
-      return { label: "Ref. Recebida", color: "#CC0000", bg: "#FFF1F1", icon: Inbox };
+      return { label: "Ref. Recebida", color: "#CC0000", bg: "var(--tint-red-bg)", icon: Inbox };
     case "reuniao_1a1":
-      return { label: "Reunião 1-a-1", color: "#8B5CF6", bg: "#F5F3FF", icon: Users };
+      return { label: "Reunião 1-a-1", color: "#8B5CF6", bg: "var(--tint-purple-bg)", icon: Users };
     case "agradecimento_dado":
-      return { label: "Agradecimento Dado", color: "#F59E0B", bg: "#FFFBEB", icon: HeartHandshake };
+      return { label: "Agradecimento Dado", color: "#F59E0B", bg: "var(--tint-amber-bg)", icon: HeartHandshake };
     case "agradecimento_recebido":
-      return { label: "Agradecimento Recebido", color: "#0EA5E9", bg: "#F0F9FF", icon: HeartHandshake };
+      return { label: "Agradecimento Recebido", color: "#0EA5E9", bg: "var(--tint-sky-bg)", icon: HeartHandshake };
     default:
-      return { label: "Atividade", color: "#8A8A8E", bg: "#F5F5F7", icon: ActivityIcon };
+      return { label: "Atividade", color: "#8A8A8E", bg: "var(--color-track-soft)", icon: ActivityIcon };
   }
 }
 
@@ -159,11 +159,11 @@ export default function FeedClient({
         </div>
         {/* Registrar — todos os atalhos de inserção de dados, no mesmo padrão visual */}
         <div className="flex items-center justify-center gap-3 px-4 pb-3 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-          <QuickAction onClick={() => setShowNewReferral(true)} icon={Send} label="Nova Ref." color="#CC0000" bg="#FFF1F1" />
-          <QuickAction icon={Users} label="1-a-1" color="#8B5CF6" bg="#F5F3FF" onClick={() => setShowNew1a1(true)} />
-          <QuickAction href="/convidados" icon={UserPlus} label="Convidados" color="#2563EB" bg="#EFF6FF" />
-          <QuickAction href="/parceiros" icon={Handshake} label="Parceiros" color="#D97706" bg="#FFFBEB" />
-          <QuickAction href="/possibilidades" icon={Sparkles} label="Possibilidade" color="#DB2777" bg="#FDF2F8" />
+          <QuickAction onClick={() => setShowNewReferral(true)} icon={Send} label="Nova Ref." color="#CC0000" bg="var(--tint-red-bg)" />
+          <QuickAction icon={Users} label="1-a-1" color="#8B5CF6" bg="var(--tint-purple-bg)" onClick={() => setShowNew1a1(true)} />
+          <QuickAction href="/convidados" icon={UserPlus} label="Convidados" color="#2563EB" bg="var(--tint-blue-bg)" />
+          <QuickAction href="/parceiros" icon={Handshake} label="Parceiros" color="#D97706" bg="var(--tint-amber-bg)" />
+          <QuickAction href="/possibilidades" icon={Sparkles} label="Possibilidade" color="#DB2777" bg="var(--tint-pink-bg)" />
         </div>
         {/* Filtros */}
         <div className="flex items-center border-t border-gray-100 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
@@ -478,7 +478,7 @@ function New1a1Sheet({
           </div>
           <input className={input} placeholder="Local (café, escritório...)" value={local} onChange={(e) => setLocal(e.target.value)} />
           <textarea rows={2} className={`${input} resize-none`} placeholder="Resultado da reunião, oportunidades..." value={notes} onChange={(e) => setNotes(e.target.value)} />
-          {error && <p className="text-[12px] font-semibold text-primary bg-[#FFF1F1] rounded-xl px-3 py-2">{error}</p>}
+          {error && <p className="text-[12px] font-semibold text-primary bg-[var(--tint-red-bg)] rounded-xl px-3 py-2">{error}</p>}
           <div className="flex gap-3 pb-4">
             <motion.button whileTap={{ scale: 0.96 }} onClick={onClose} className="flex-1 h-12 rounded-2xl bg-background flex items-center justify-center touch-manipulation">
               <span className="text-text-muted font-semibold text-[14px]">Cancelar</span>

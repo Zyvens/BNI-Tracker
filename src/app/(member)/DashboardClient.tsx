@@ -44,9 +44,9 @@ const KPI_ICONS: Record<string, any> = {
 // Semáforo de urgência por margem em meses: vermelho = zero margem (aja agora),
 // amarelo = margem só até o mês seguinte, azul = 3+ meses de margem de segurança.
 const URGENCY_STYLE: Record<string, { bg: string; border: string; color: string; dot: string }> = {
-  critical: { bg: "#FFF1F1", border: "#FECACA", color: "#CC0000", dot: "🔴" },
-  urgent: { bg: "#FFFBEB", border: "#FDE68A", color: "#D97706", dot: "🟡" },
-  watch: { bg: "#EFF6FF", border: "#BFDBFE", color: "#2563EB", dot: "🔵" },
+  critical: { bg: "var(--tint-red-bg)", border: "var(--tint-red-border)", color: "#CC0000", dot: "🔴" },
+  urgent: { bg: "var(--tint-amber-bg)", border: "var(--tint-amber-border)", color: "#D97706", dot: "🟡" },
+  watch: { bg: "var(--tint-blue-bg)", border: "var(--tint-blue-border)", color: "#2563EB", dot: "🔵" },
 };
 
 type Kpi = {
@@ -147,7 +147,7 @@ export default function DashboardClient(p: Props) {
               <motion.div
                 whileTap={{ scale: 0.9 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full touch-manipulation"
-                style={{ backgroundColor: "#FFF1F1" }}
+                style={{ backgroundColor: "var(--tint-red-bg)" }}
               >
                 <Zap size={13} color="#CC0000" strokeWidth={2.5} />
                 <span className="text-[11px] font-bold text-primary">Registrar</span>
@@ -289,7 +289,7 @@ export default function DashboardClient(p: Props) {
           <motion.div variants={fadeUp}>
             <Link href="/feed?filtro=agradecimentos">
               <div className="bg-surface rounded-2xl shadow-sm border border-gray-100 px-4 py-3.5 flex items-center gap-3 touch-manipulation">
-                <div className="w-9 h-9 rounded-xl bg-[#EFF6FF] flex items-center justify-center flex-shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-[var(--tint-blue-bg)] flex items-center justify-center flex-shrink-0">
                   <ClipboardCheck size={17} color="#2563EB" strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -484,7 +484,7 @@ function KpiCard({ kpi: k, onClick }: { kpi: Kpi; onClick: () => void }) {
   const label = k.status === "green" ? "Meta atingida ✓" : k.status === "yellow" ? "Atenção" : "Abaixo da meta";
   const chip = k.isCurrency ? fmtMoney(k.current, true) : `${k.current}`;
   const chipGoal = k.isCurrency ? fmtMoney(k.goal, true) : `${k.inverse ? "0" : k.goal}`;
-  const chipBg = k.status === "green" ? "#F0FDF4" : k.status === "yellow" ? "#FFFBEB" : "#FFF1F1";
+  const chipBg = k.status === "green" ? "var(--tint-green-bg)" : k.status === "yellow" ? "var(--tint-amber-bg)" : "var(--tint-red-bg)";
 
   return (
     <motion.div
@@ -559,7 +559,7 @@ function RefsAnaliseCard({ a }: { a: Props["refsAnalise"] }) {
         <div className="flex items-center gap-4">
           <div className="relative flex items-center justify-center w-24 h-24 flex-shrink-0">
             <svg width="96" height="96" className="-rotate-90">
-              <circle cx="48" cy="48" r="38" fill="none" stroke="#E5E7EB" strokeWidth="8" />
+              <circle cx="48" cy="48" r="38" fill="none" stroke="var(--color-track)" strokeWidth="8" />
               <motion.circle
                 cx="48" cy="48" r="38" fill="none"
                 stroke={ringColor} strokeWidth="8" strokeLinecap="round"
@@ -605,7 +605,7 @@ function RefsAnaliseCard({ a }: { a: Props["refsAnalise"] }) {
             <div className="mt-3 h-2 rounded-full bg-gray-100 overflow-hidden flex">
               <motion.div className="h-full" style={{ backgroundColor: "#22C55E" }} initial={{ width: 0 }} animate={{ width: `${(a.convertidas / a.total) * 100}%` }} transition={{ duration: 1, ease: "easeOut" }} />
               <motion.div className="h-full" style={{ backgroundColor: "#F59E0B" }} initial={{ width: 0 }} animate={{ width: `${(a.emAndamento / a.total) * 100}%` }} transition={{ duration: 1, delay: 0.2, ease: "easeOut" }} />
-              <motion.div className="h-full" style={{ backgroundColor: "#E5E7EB" }} initial={{ width: 0 }} animate={{ width: `${(a.pendentes / a.total) * 100}%` }} transition={{ duration: 1, delay: 0.3, ease: "easeOut" }} />
+              <motion.div className="h-full" style={{ backgroundColor: "var(--color-track)" }} initial={{ width: 0 }} animate={{ width: `${(a.pendentes / a.total) * 100}%` }} transition={{ duration: 1, delay: 0.3, ease: "easeOut" }} />
             </div>
             <div className="mt-2 flex items-center justify-between">
               <p className="text-[10px] text-text-muted">

@@ -29,7 +29,7 @@ export default function ComparativoSection({
             key={v}
             onClick={() => setView(v)}
             className="flex-1 h-9 rounded-full text-[11px] font-bold touch-manipulation transition-colors"
-            style={{ backgroundColor: view === v ? "#1A1A1A" : "transparent", color: view === v ? "#FFFFFF" : "#8A8A8E" }}
+            style={{ backgroundColor: view === v ? "#CC0000" : "transparent", color: view === v ? "#FFFFFF" : "#8A8A8E" }}
           >
             {v === "indicacoes" ? "Indicações" : "A Receber"}
           </button>
@@ -283,8 +283,8 @@ function AReceberView({ initialMonth, initialDebts }: { initialMonth: string; in
               className="px-2.5 py-1.5 rounded-full text-[10px] font-bold touch-manipulation border"
               style={
                 d.thanked
-                  ? { backgroundColor: "#F0FDF4", borderColor: "#BBF7D0", color: "#16A34A" }
-                  : { backgroundColor: "#FFF1F1", borderColor: "#FECACA", color: "#CC0000" }
+                  ? { backgroundColor: "var(--tint-green-bg)", borderColor: "var(--tint-green-border)", color: "#16A34A" }
+                  : { backgroundColor: "var(--tint-red-bg)", borderColor: "var(--tint-red-border)", color: "#CC0000" }
               }
             >
               {d.thanked ? "✓ Agradeceu" : "Ainda não"}
@@ -391,7 +391,7 @@ function NewThankYouDebtSheet({ onClose, onSaved }: { onClose: () => void; onSav
               onChange={(e) => setMonthlyValue(e.target.value)}
             />
           </div>
-          {error && <p className="text-[12px] font-semibold text-primary bg-[#FFF1F1] rounded-xl px-3 py-2">{error}</p>}
+          {error && <p className="text-[12px] font-semibold text-primary bg-[var(--tint-red-bg)] rounded-xl px-3 py-2">{error}</p>}
           <div className="flex gap-3 pb-3">
             <motion.button whileTap={{ scale: 0.96 }} onClick={onClose} className="flex-1 h-12 rounded-2xl bg-background flex items-center justify-center touch-manipulation">
               <span className="text-text-muted font-semibold text-[14px]">Cancelar</span>

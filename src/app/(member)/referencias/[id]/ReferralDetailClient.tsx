@@ -148,7 +148,7 @@ export default function ReferralDetailClient({ referral: r }: Props) {
               </motion.div>
             </a>
             <a href={`https://wa.me/55${r.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">
-              <motion.div whileTap={{ scale: 0.96 }} className="h-12 rounded-2xl bg-[#F0FDF4] border border-green-200 flex items-center justify-center gap-2 touch-manipulation">
+              <motion.div whileTap={{ scale: 0.96 }} className="h-12 rounded-2xl bg-[var(--tint-green-bg)] border border-green-200 flex items-center justify-center gap-2 touch-manipulation">
                 <MessageCircle size={15} color="#16A34A" />
                 <span className="text-[13px] font-bold text-green-600">Enviar Mensagem</span>
               </motion.div>
@@ -193,7 +193,7 @@ export default function ReferralDetailClient({ referral: r }: Props) {
                     whileTap={{ scale: 0.96 }}
                     disabled={busy}
                     onClick={() => patch({ action: "confirmar" })}
-                    className="h-12 rounded-2xl bg-[#F0FDF4] border border-green-200 flex items-center justify-center gap-2 touch-manipulation"
+                    className="h-12 rounded-2xl bg-[var(--tint-green-bg)] border border-green-200 flex items-center justify-center gap-2 touch-manipulation"
                   >
                     <CheckCircle2 size={15} color="#16A34A" />
                     <span className="text-[13px] font-bold text-green-600">Confirmar</span>
@@ -202,7 +202,7 @@ export default function ReferralDetailClient({ referral: r }: Props) {
                     whileTap={{ scale: 0.96 }}
                     disabled={busy}
                     onClick={() => setSheet("contestar")}
-                    className="h-12 rounded-2xl bg-[#FFF1F1] border border-red-200 flex items-center justify-center gap-2 touch-manipulation"
+                    className="h-12 rounded-2xl bg-[var(--tint-red-bg)] border border-red-200 flex items-center justify-center gap-2 touch-manipulation"
                   >
                     <XCircle size={15} color="#CC0000" />
                     <span className="text-[13px] font-bold text-primary">Contestar</span>
@@ -434,7 +434,7 @@ function ValueSheet({
               onClick={() => setDealType(k)}
               className="h-11 rounded-xl text-[11px] font-bold touch-manipulation border-2 transition-colors"
               style={{
-                backgroundColor: dealType === k ? DEAL_CATEGORY_LABEL[k].color + "1A" : "#F5F5F7",
+                backgroundColor: dealType === k ? DEAL_CATEGORY_LABEL[k].color + "1A" : "var(--color-track-soft)",
                 borderColor: dealType === k ? DEAL_CATEGORY_LABEL[k].color : "transparent",
                 color: dealType === k ? DEAL_CATEGORY_LABEL[k].color : "#8A8A8E",
               }}

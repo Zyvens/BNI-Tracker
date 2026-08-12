@@ -18,28 +18,28 @@ export const DEAL_CATEGORY_LABEL: Record<string, { label: string; color: string 
 const DEAL_CATEGORY_UNSET = { label: "Não categorizado", color: "#9CA3AF" };
 
 export const STATUS_LABEL: Record<string, { label: string; color: string; bg: string }> = {
-  enviada: { label: "Enviada", color: "#2563EB", bg: "#EFF6FF" },
-  recebida: { label: "Recebida", color: "#2563EB", bg: "#EFF6FF" },
-  contato_pendente: { label: "1º contato pendente", color: "#D97706", bg: "#FFFBEB" },
-  contato_realizado: { label: "Contato realizado", color: "#0EA5E9", bg: "#F0F9FF" },
-  reuniao_marcada: { label: "Reunião marcada", color: "#8B5CF6", bg: "#F5F3FF" },
-  diagnostico: { label: "Diagnóstico", color: "#8B5CF6", bg: "#F5F3FF" },
-  proposta_enviada: { label: "Proposta enviada", color: "#D97706", bg: "#FFFBEB" },
-  negociacao: { label: "Negociação", color: "#D97706", bg: "#FFFBEB" },
-  fechada: { label: "Fechada", color: "#16A34A", bg: "#F0FDF4" },
-  perdida: { label: "Perdida", color: "#CC0000", bg: "#FFF1F1" },
-  parceria: { label: "Parceria", color: "#0EA5E9", bg: "#F0F9FF" },
-  sem_perfil: { label: "Sem perfil", color: "#6B7280", bg: "#F5F5F7" },
-  duplicada: { label: "Duplicada", color: "#6B7280", bg: "#F5F5F7" },
+  enviada: { label: "Enviada", color: "#2563EB", bg: "var(--tint-blue-bg)" },
+  recebida: { label: "Recebida", color: "#2563EB", bg: "var(--tint-blue-bg)" },
+  contato_pendente: { label: "1º contato pendente", color: "#D97706", bg: "var(--tint-amber-bg)" },
+  contato_realizado: { label: "Contato realizado", color: "#0EA5E9", bg: "var(--tint-sky-bg)" },
+  reuniao_marcada: { label: "Reunião marcada", color: "#8B5CF6", bg: "var(--tint-purple-bg)" },
+  diagnostico: { label: "Diagnóstico", color: "#8B5CF6", bg: "var(--tint-purple-bg)" },
+  proposta_enviada: { label: "Proposta enviada", color: "#D97706", bg: "var(--tint-amber-bg)" },
+  negociacao: { label: "Negociação", color: "#D97706", bg: "var(--tint-amber-bg)" },
+  fechada: { label: "Fechada", color: "#16A34A", bg: "var(--tint-green-bg)" },
+  perdida: { label: "Perdida", color: "#CC0000", bg: "var(--tint-red-bg)" },
+  parceria: { label: "Parceria", color: "#0EA5E9", bg: "var(--tint-sky-bg)" },
+  sem_perfil: { label: "Sem perfil", color: "#6B7280", bg: "var(--color-track-soft)" },
+  duplicada: { label: "Duplicada", color: "#6B7280", bg: "var(--color-track-soft)" },
 };
 
 export const CONF_LABEL: Record<string, { label: string; color: string; bg: string } | null> = {
   nao_aplicavel: null,
-  aguardando_declaracao: { label: "Declarar valor", color: "#D97706", bg: "#FFFBEB" },
-  valor_declarado: { label: "Aguardando confirmação", color: "#2563EB", bg: "#EFF6FF" },
-  confirmada: { label: "Valor confirmado ✓", color: "#16A34A", bg: "#F0FDF4" },
-  contestada: { label: "Valor contestado", color: "#CC0000", bg: "#FFF1F1" },
-  corrigida: { label: "Corrigida", color: "#2563EB", bg: "#EFF6FF" },
+  aguardando_declaracao: { label: "Declarar valor", color: "#D97706", bg: "var(--tint-amber-bg)" },
+  valor_declarado: { label: "Aguardando confirmação", color: "#2563EB", bg: "var(--tint-blue-bg)" },
+  confirmada: { label: "Valor confirmado ✓", color: "#16A34A", bg: "var(--tint-green-bg)" },
+  contestada: { label: "Valor contestado", color: "#CC0000", bg: "var(--tint-red-bg)" },
+  corrigida: { label: "Corrigida", color: "#2563EB", bg: "var(--tint-blue-bg)" },
 };
 
 type Ref = {
@@ -119,7 +119,7 @@ export default function ReferenciasClient(p: Props) {
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowNew(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full touch-manipulation"
-              style={{ backgroundColor: "#FFF1F1" }}
+              style={{ backgroundColor: "var(--tint-red-bg)" }}
             >
               <Plus size={14} color="#CC0000" strokeWidth={2.5} />
               <span className="text-[11px] font-bold text-primary">Nova</span>

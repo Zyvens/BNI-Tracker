@@ -61,7 +61,7 @@ export default function RelatoriosClient({ reports }: { reports: Report[] }) {
       {/* Upload */}
       <div className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4 space-y-3">
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-[#FFF1F1] flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl bg-[var(--tint-red-bg)] flex items-center justify-center">
             <FileUp size={17} color="#CC0000" />
           </div>
           <div>
@@ -95,7 +95,7 @@ export default function RelatoriosClient({ reports }: { reports: Report[] }) {
           accept="application/pdf"
           className="w-full text-[12px] text-text-muted file:mr-3 file:px-4 file:py-2.5 file:rounded-xl file:border-0 file:bg-background file:text-[12px] file:font-bold file:text-text-main"
         />
-        {error && <p className="text-[12px] font-semibold text-primary bg-[#FFF1F1] rounded-xl px-3 py-2">{error}</p>}
+        {error && <p className="text-[12px] font-semibold text-primary bg-[var(--tint-red-bg)] rounded-xl px-3 py-2">{error}</p>}
         {result && <p className="text-[12px] font-semibold text-green-700 bg-green-50 rounded-xl px-3 py-2">{result}</p>}
         <motion.button
           whileTap={{ scale: 0.96 }}

@@ -32,7 +32,7 @@ function Counter({
           type="button"
           whileTap={{ scale: 0.85 }}
           onClick={() => onChange(value + 1)}
-          className="w-8 h-8 rounded-full bg-[#FFF1F1] flex items-center justify-center touch-manipulation"
+          className="w-8 h-8 rounded-full bg-[var(--tint-red-bg)] flex items-center justify-center touch-manipulation"
         >
           <Plus size={14} color="#CC0000" strokeWidth={2.5} />
         </motion.button>
@@ -59,7 +59,7 @@ function Toggle({
       <span className="text-[13px] font-semibold text-text-main">{label}</span>
       <div
         className="w-11 h-6 rounded-full transition-colors relative"
-        style={{ backgroundColor: value ? "#22C55E" : "#E5E7EB" }}
+        style={{ backgroundColor: value ? "#22C55E" : "var(--color-track)" }}
       >
         <motion.div
           className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow"
@@ -161,7 +161,7 @@ export default function RegistroSemanaPage() {
                 onClick={() => setPresenca(o.v)}
                 className="h-11 rounded-xl text-[12px] font-bold touch-manipulation border-2 transition-colors"
                 style={{
-                  backgroundColor: presenca === o.v ? (o.v === "Aus" ? "#FFF1F1" : o.v === "Subs" ? "#FFFBEB" : "#F0FDF4") : "#F5F5F7",
+                  backgroundColor: presenca === o.v ? (o.v === "Aus" ? "var(--tint-red-bg)" : o.v === "Subs" ? "var(--tint-amber-bg)" : "var(--tint-green-bg)") : "var(--color-track-soft)",
                   borderColor: presenca === o.v ? (o.v === "Aus" ? "#CC0000" : o.v === "Subs" ? "#F59E0B" : "#22C55E") : "transparent",
                   color: presenca === o.v ? (o.v === "Aus" ? "#CC0000" : o.v === "Subs" ? "#D97706" : "#16A34A") : "#8A8A8E",
                 }}
@@ -214,7 +214,7 @@ export default function RegistroSemanaPage() {
         </div>
 
         {error && (
-          <p className="text-[12px] font-semibold text-primary bg-[#FFF1F1] rounded-xl px-3 py-2">{error}</p>
+          <p className="text-[12px] font-semibold text-primary bg-[var(--tint-red-bg)] rounded-xl px-3 py-2">{error}</p>
         )}
 
         <div className="flex gap-3">

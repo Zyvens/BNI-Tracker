@@ -121,6 +121,8 @@ export default async function DashboardPage() {
       pendencias={snap.pendencias}
       unread={unread}
       hasSixMonths={snap.hasSixMonths}
+      weeklyStreak={snap.weeklyStreak}
+      checkin={snap.checkin}
     />
   );
 }

@@ -437,3 +437,34 @@ export function computeOutlook(
 export function formatMoney(v: number): string {
   return `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
+
+function mondayOf(d: Date): string {
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diff);
+  return `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, "0")}-${String(monday.getDate()).padStart(2, "0")}`;
+}
+
+// Semanas consecutivas com presença registrada (P ou Subs, não conta ausência), contando
+// pra trás a partir de hoje. A semana atual não quebra a sequência se ainda não tiver
+// registro (a reunião pode simplesmente não ter acontecido ainda).
+export function computeWeeklyStreak(
+  entries: { dateISO: string; presenca: string }[],
+  today = new Date()
+): number {
+  const weeksPresent = new Set<string>();
+  for (const e of entries) {
+    if (e.presenca === "Aus") continue;
+    weeksPresent.add(mondayOf(new Date(e.dateISO + "T00:00:00")));
+  }
+  let cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  if (!weeksPresent.has(mondayOf(cursor))) {
+    cursor = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate() - 7);
+  }
+  let streak = 0;
+  while (weeksPresent.has(mondayOf(cursor))) {
+    streak++;
+    cursor = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate() - 7);
+  }
+  return streak;
+}

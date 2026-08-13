@@ -17,6 +17,7 @@
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.42.2",
+    "html-to-image": "^1.11.13",
     "jose": "^6.2.3",
     "lucide-react": "^1.24.0",
     "next": "14.2.35",
@@ -24,7 +25,8 @@
     "prisma": "^5.22.0",
     "react": "^18",
     "react-dom": "^18",
-    "recharts": "^3.10.1"
+    "recharts": "^3.10.1",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -32,6 +34,7 @@
     "@types/pdf-parse": "^1.1.5",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/web-push": "^3.6.4",
     "eslint": "^8",
     "eslint-config-next": "14.2.35",
     "postcss": "^8",

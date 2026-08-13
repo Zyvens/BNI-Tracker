@@ -26,9 +26,11 @@ import {
   X,
   Check,
   Settings,
+  CalendarCheck,
 } from "lucide-react";
 import { ScoreRing, ProgressBar, STATUS_COLORS, StatusKey, fmtMoney, fadeUp, stagger } from "@/components/ui";
 import LogoutButton from "@/components/LogoutButton";
+import ShareCardButton from "@/components/ShareCard";
 
 const KPI_ICONS: Record<string, any> = {
   refDadas: Send,
@@ -100,6 +102,8 @@ type Props = {
   pendencias: { declarar: number; confirmar: number; semRetorno: number; paradas: number };
   unread: number;
   hasSixMonths: boolean;
+  weeklyStreak: number;
+  checkin: { todayISO: string; isMeetingDayToday: boolean; checkedInToday: boolean };
 };
 
 export default function DashboardClient(p: Props) {
@@ -135,6 +139,18 @@ export default function DashboardClient(p: Props) {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <ShareCardButton
+              data={{
+                name: p.name,
+                score: p.score,
+                targetScore: p.targetScore,
+                windowLabel: p.windowLabel,
+                presencas: p.presencas,
+                totalReunioes: p.totalReunioes,
+                refsConvertidas: p.refsAnalise.convertidas,
+                valorConvertido: p.refsAnalise.valorConvertido,
+              }}
+            />
             <Link href="/notificacoes" className="relative w-9 h-9 rounded-full bg-background flex items-center justify-center touch-manipulation">
               <Bell size={16} color="var(--color-text-main)" strokeWidth={2} />
               {p.unread > 0 && (
@@ -232,6 +248,14 @@ export default function DashboardClient(p: Props) {
                     <span className="text-[10px] font-bold text-danger">{p.ausencias} ausências</span>
                   </div>
                 )}
+                {p.weeklyStreak > 0 && (
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-full" style={{ backgroundColor: "var(--tint-amber-bg)" }}>
+                    <span className="text-[10px]">🔥</span>
+                    <span className="text-[10px] font-bold" style={{ color: "#D97706" }}>
+                      {p.weeklyStreak} semana{p.weeklyStreak > 1 ? "s" : ""} seguida{p.weeklyStreak > 1 ? "s" : ""}
+                    </span>
+                  </div>
+                )}
               </div>
               {p.isProrated && (
                 <p className="text-[10px] text-text-muted mt-2 leading-relaxed">
@@ -283,6 +307,11 @@ export default function DashboardClient(p: Props) {
             </div>
           </div>
         </motion.div>
+
+        {/* Check-in de presença no dia da reunião */}
+        {p.checkin.isMeetingDayToday && !p.checkin.checkedInToday && (
+          <CheckinCard todayISO={p.checkin.todayISO} onDone={() => router.refresh()} />
+        )}
 
         {/* Pendências de confirmação */}
         {pendTotal > 0 && (
@@ -471,6 +500,68 @@ export default function DashboardClient(p: Props) {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+// Check-in rápido de presença — aparece no Dashboard só no dia configurado
+// da reunião, quando o membro ainda não registrou a semana. Cria/atualiza o
+// WeekEntry de hoje com o mínimo necessário; detalhes (refs, ONF etc.) podem
+// ser completados depois em /registro-semana.
+function CheckinCard({ todayISO, onDone }: { todayISO: string; onDone: () => void }) {
+  const [saving, setSaving] = useState<string | null>(null);
+
+  async function checkin(presenca: "P" | "Aus" | "Subs") {
+    setSaving(presenca);
+    try {
+      await fetch("/api/entries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dateISO: todayISO, presenca }),
+      });
+      onDone();
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  return (
+    <motion.div
+      variants={fadeUp}
+      className="rounded-2xl p-4 border"
+      style={{ backgroundColor: "var(--tint-blue-bg)", borderColor: "var(--tint-blue-border)" }}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <CalendarCheck size={18} color="#2563EB" strokeWidth={2.2} />
+        <div>
+          <p className="text-[13px] font-extrabold font-display" style={{ color: "#2563EB" }}>
+            Hoje é dia de reunião!
+          </p>
+          <p className="text-[10.5px] text-text-muted">Confirme sua presença com um toque</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {([
+          { v: "P", label: "Presente" },
+          { v: "Subs", label: "Substituto" },
+          { v: "Aus", label: "Ausência" },
+        ] as const).map((o) => (
+          <motion.button
+            key={o.v}
+            type="button"
+            whileTap={{ scale: 0.95 }}
+            disabled={saving !== null}
+            onClick={() => checkin(o.v)}
+            className="h-11 rounded-xl text-[12px] font-bold touch-manipulation border-2 bg-surface transition-colors disabled:opacity-60"
+            style={{
+              borderColor: o.v === "Aus" ? "#CC000055" : o.v === "Subs" ? "#F59E0B55" : "#22C55E55",
+              color: o.v === "Aus" ? "#CC0000" : o.v === "Subs" ? "#D97706" : "#16A34A",
+            }}
+          >
+            {saving === o.v ? "..." : o.label}
+          </motion.button>
+        ))}
+      </div>
+    </motion.div>
   );
 }
 

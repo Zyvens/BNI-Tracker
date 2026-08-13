@@ -15,7 +15,18 @@ type Settings = {
   goalOpnf: number;
   targetScore: number;
   safetyMargin: number;
+  meetingWeekday: number | null;
 };
+
+const WEEKDAYS = [
+  { v: 0, label: "Domingo" },
+  { v: 1, label: "Segunda" },
+  { v: 2, label: "Terça" },
+  { v: 3, label: "Quarta" },
+  { v: 4, label: "Quinta" },
+  { v: 5, label: "Sexta" },
+  { v: 6, label: "Sábado" },
+];
 
 const FIELDS: { key: keyof Settings; label: string; hint?: string }[] = [
   { key: "goalRefs", label: "Referências dadas (semestre)", hint: "padrão 27 (~1/semana)" },
@@ -85,6 +96,32 @@ export default function ConfigClient({ settings }: { settings: Settings }) {
               {f.hint && <p className="text-[9px] text-text-muted mt-0.5">{f.hint}</p>}
             </div>
           ))}
+        </div>
+
+        <div>
+          <label className="text-[11px] font-bold uppercase tracking-wider text-text-muted mb-1.5 block">
+            Dia da reunião
+          </label>
+          <div className="grid grid-cols-4 gap-2">
+            {WEEKDAYS.map((d) => (
+              <button
+                key={d.v}
+                type="button"
+                onClick={() => setForm({ ...form, meetingWeekday: form.meetingWeekday === d.v ? null : d.v })}
+                className="h-10 rounded-xl text-[11px] font-bold touch-manipulation border-2 transition-colors"
+                style={{
+                  backgroundColor: form.meetingWeekday === d.v ? "var(--tint-red-bg)" : "var(--color-track-soft)",
+                  borderColor: form.meetingWeekday === d.v ? "#CC0000" : "transparent",
+                  color: form.meetingWeekday === d.v ? "#CC0000" : "#8A8A8E",
+                }}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[9px] text-text-muted mt-1.5">
+            Ativa o check-in rápido de presença no Dashboard dos membros nesse dia da semana.
+          </p>
         </div>
 
         {saved && (

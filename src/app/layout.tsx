@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
+import PwaRegister from "@/components/PwaRegister";
 import "./globals.css";
 
 const THEMES = ["light", "dark", "blue-moon"] as const;
@@ -8,6 +9,20 @@ export const metadata: Metadata = {
   title: "BNI Tracker",
   description:
     "Acompanhe seu desempenho semestral no BNI e mantenha 100 pontos com análise inteligente de KPIs, registro semanal e gestão de referências.",
+  manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "BNI Tracker",
+  },
 };
 
 export const viewport: Viewport = {
@@ -36,7 +51,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <PwaRegister />
+        {children}
+      </body>
     </html>
   );
 }

@@ -18,6 +18,7 @@ import {
   kpiStatus,
   kpiPoints,
   kpiDica,
+  computeWeeklyStreak,
   MonthlyProduction,
 } from "@/lib/engine";
 
@@ -57,7 +58,7 @@ export async function getMemberSnapshot(memberId: string) {
   const win = currentWindow(today);
   const goals = await getGoals();
 
-  const [member, entries, records, refsGiven, refsReceived, oneToOnes, reportCount, overrides] =
+  const [member, entries, records, refsGiven, refsReceived, oneToOnes, reportCount, overrides, settingsRow] =
     await Promise.all([
       prisma.member.findUnique({ where: { id: memberId } }),
       prisma.weekEntry.findMany({ where: { memberId }, orderBy: { dateISO: "asc" } }),
@@ -79,6 +80,7 @@ export async function getMemberSnapshot(memberId: string) {
       prisma.oneToOne.findMany({ where: { memberId }, include: { with: true }, orderBy: { dataISO: "desc" } }),
       prisma.report.count(),
       prisma.kpiOverride.findMany({ where: { memberId } }),
+      prisma.settings.findFirst({ select: { meetingWeekday: true } }),
     ]);
 
   // ---- Valores oficiais (último relatório importado) ----
@@ -194,6 +196,16 @@ export async function getMemberSnapshot(memberId: string) {
     (Object.keys(official) as KpiId[]).every((k) => current[k] === official[k]);
   const score = matchesOfficial ? latest!.totalPoints : computeScore(current, ausencias, atrasos, effectiveGoals);
   const outlook = computeOutlook(score, months, effectiveGoals, today);
+  const weeklyStreak = computeWeeklyStreak(entries, today);
+
+  // ---- Check-in de presença no dia da reunião ----
+  const todayISO = today.toISOString().slice(0, 10);
+  const meetingWeekday = settingsRow?.meetingWeekday ?? null;
+  const checkin = {
+    todayISO,
+    isMeetingDayToday: meetingWeekday !== null && today.getDay() === meetingWeekday,
+    checkedInToday: entries.some((e) => e.dateISO === todayISO),
+  };
 
   const kpis = KPIS.map((kpi) => {
     const v = current[kpi.id];
@@ -262,6 +274,8 @@ export async function getMemberSnapshot(memberId: string) {
     totalReunioes,
     score,
     outlook,
+    weeklyStreak,
+    checkin,
     kpis,
     months,
     actions,

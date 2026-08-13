@@ -1,10 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Check, Sun, Moon, Sparkle } from "lucide-react";
+import { ArrowLeft, Check, Sun, Moon, Sparkle, Trophy, ChevronRight } from "lucide-react";
 import { PageHeader, fadeUp, stagger } from "@/components/ui";
+import InstallPwaButton from "@/components/InstallPwaButton";
+import PushSubscribeToggle from "@/components/PushSubscribeToggle";
 
 const THEMES = [
   {
@@ -30,15 +33,41 @@ const THEMES = [
   },
 ] as const;
 
-export default function ConfiguracoesClient({ name, currentTheme }: { name: string; currentTheme: string }) {
+export default function ConfiguracoesClient({
+  name,
+  currentTheme,
+  showInRanking,
+}: {
+  name: string;
+  currentTheme: string;
+  showInRanking: boolean;
+}) {
   const router = useRouter();
   const [theme, setThemeState] = useState(currentTheme);
+  const [ranking, setRanking] = useState(showInRanking);
+  const [savingRanking, setSavingRanking] = useState(false);
 
   function applyTheme(id: string) {
     setThemeState(id);
     document.documentElement.setAttribute("data-theme", id);
     document.cookie = `theme=${id}; path=/; max-age=31536000; SameSite=Lax`;
     router.refresh();
+  }
+
+  async function toggleRanking() {
+    const next = !ranking;
+    setRanking(next);
+    setSavingRanking(true);
+    try {
+      await fetch("/api/ranking/optin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: next }),
+      });
+      router.refresh();
+    } finally {
+      setSavingRanking(false);
+    }
   }
 
   return (
@@ -54,6 +83,14 @@ export default function ConfiguracoesClient({ name, currentTheme }: { name: stri
       />
 
       <motion.div initial="hidden" animate="visible" variants={stagger} className="px-4 py-4 space-y-4">
+        <motion.div variants={fadeUp}>
+          <InstallPwaButton />
+        </motion.div>
+
+        <motion.div variants={fadeUp}>
+          <PushSubscribeToggle />
+        </motion.div>
+
         <motion.div variants={fadeUp}>
           <h3 className="text-[12px] font-extrabold uppercase tracking-wider text-text-muted font-display px-1 mb-2">
             Aparência
@@ -96,6 +133,54 @@ export default function ConfiguracoesClient({ name, currentTheme }: { name: stri
         <motion.p variants={fadeUp} className="text-[10px] text-text-muted px-1 leading-relaxed">
           A preferência fica salva neste aparelho e se aplica sempre que você acessar o BNI Tracker.
         </motion.p>
+
+        <motion.div variants={fadeUp}>
+          <h3 className="text-[12px] font-extrabold uppercase tracking-wider text-text-muted font-display px-1 mb-2 mt-2">
+            Capítulo
+          </h3>
+        </motion.div>
+
+        <motion.div variants={fadeUp} className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4">
+          <button
+            type="button"
+            onClick={toggleRanking}
+            disabled={savingRanking}
+            className="flex items-center justify-between w-full touch-manipulation disabled:opacity-60"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[var(--tint-amber-bg)] flex items-center justify-center flex-shrink-0">
+                <Trophy size={17} color="#D97706" strokeWidth={2} />
+              </div>
+              <div className="text-left">
+                <p className="text-[13px] font-extrabold text-text-main font-display">Aparecer no ranking</p>
+                <p className="text-[10.5px] text-text-muted leading-snug mt-0.5">
+                  Sua pontuação fica visível aos outros membros no placar do capítulo
+                </p>
+              </div>
+            </div>
+            <div
+              className="w-11 h-6 rounded-full transition-colors relative flex-shrink-0 ml-3"
+              style={{ backgroundColor: ranking ? "#22C55E" : "var(--color-track)" }}
+            >
+              <motion.div
+                className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow"
+                animate={{ left: ranking ? 22 : 2 }}
+                transition={{ type: "spring", stiffness: 500, damping: 35 }}
+              />
+            </div>
+          </button>
+          {ranking && (
+            <Link
+              href="/ranking"
+              className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50 touch-manipulation"
+            >
+              <span className="text-[12px] font-bold" style={{ color: "#D97706" }}>
+                Ver o placar do capítulo
+              </span>
+              <ChevronRight size={15} color="#D97706" strokeWidth={2.5} />
+            </Link>
+          )}
+        </motion.div>
       </motion.div>
     </div>
   );

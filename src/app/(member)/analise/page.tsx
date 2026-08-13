@@ -149,6 +149,7 @@ export default async function AnalisePage() {
       }))}
       evolucao={evolucao}
       insights={insights}
+      targetScore={snap.goals.targetScore}
     />
   );
 }

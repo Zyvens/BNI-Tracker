@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Filter, Sparkles, TrendingUp, Users2, Handshake } from "lucide-react";
+import { Filter, Sparkles, TrendingUp, Users2, Handshake, Calculator } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer } from "recharts";
 import { PageHeader, ProgressBar, fmtMoney, fadeUp, stagger } from "@/components/ui";
 
 type Props = {
@@ -32,6 +34,7 @@ type Props = {
   }[];
   evolucao: { label: string; pontos: number }[];
   insights: string[];
+  targetScore: number;
 };
 
 export default function AnaliseClient(p: Props) {
@@ -44,7 +47,6 @@ export default function AnaliseClient(p: Props) {
     { label: "Fechadas", value: f.fechadas, color: "#16A34A" },
   ];
   const maxFunnel = Math.max(f.recebidas, 1);
-  const maxPontos = Math.max(...p.evolucao.map((e) => e.pontos), 100);
 
   return (
     <div className="flex flex-col">
@@ -124,6 +126,9 @@ export default function AnaliseClient(p: Props) {
           )}
         </motion.div>
 
+        {/* Calculadora de ROI */}
+        <RoiCalculator valorRecebido={f.valorFechado} windowLabel={p.windowLabel} />
+
         {/* Evolução da pontuação oficial */}
         {p.evolucao.length > 0 && (
           <motion.div variants={fadeUp} className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4">
@@ -136,27 +141,48 @@ export default function AnaliseClient(p: Props) {
                 <p className="text-[10px] text-text-muted">Relatórios oficiais importados</p>
               </div>
             </div>
-            <div className="flex items-end gap-1.5 h-28">
-              {p.evolucao.map((e) => {
-                const pct = (e.pontos / maxPontos) * 100;
-                const color = e.pontos >= 100 ? "#F59E0B" : e.pontos >= 70 ? "#22C55E" : e.pontos >= 40 ? "#F59E0B" : "#CC0000";
-                return (
-                  <div key={e.label} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
-                    <span className="text-[9px] font-extrabold font-display" style={{ color }}>
-                      {e.pontos}
-                    </span>
-                    <motion.div
-                      className="w-full rounded-t-lg"
-                      style={{ backgroundColor: color }}
-                      initial={{ height: 0 }}
-                      animate={{ height: `${Math.max(pct * 0.7, 4)}%` }}
-                      transition={{ duration: 0.8, ease: "easeOut" }}
-                    />
-                    <span className="text-[8px] text-text-muted font-semibold">{e.label}</span>
-                  </div>
-                );
-              })}
+            <div className="h-40 -ml-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={p.evolucao} margin={{ top: 8, right: 12, bottom: 0, left: -18 }}>
+                  <CartesianGrid vertical={false} stroke="var(--color-border)" />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fontSize: 9, fill: "var(--color-text-muted)" }}
+                    axisLine={{ stroke: "var(--color-border)" }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    domain={[0, (max: number) => Math.max(max, p.targetScore) + 10]}
+                    tick={{ fontSize: 9, fill: "var(--color-text-muted)" }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={28}
+                  />
+                  <ReferenceLine y={p.targetScore} stroke="#F59E0B" strokeDasharray="4 4" strokeWidth={1.5} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "var(--color-surface)",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: 10,
+                      fontSize: 11,
+                    }}
+                    labelStyle={{ color: "var(--color-text-main)", fontWeight: 700 }}
+                    formatter={(value) => [`${value} pts`, "Pontuação"]}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="pontos"
+                    stroke="#16A34A"
+                    strokeWidth={2.5}
+                    dot={{ r: 3.5, fill: "#16A34A", strokeWidth: 0 }}
+                    activeDot={{ r: 5 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
+            <p className="text-[9px] text-text-muted mt-1 flex items-center gap-1">
+              <span className="inline-block w-3 border-t-2 border-dashed" style={{ borderColor: "#F59E0B" }} /> meta ({p.targetScore} pts)
+            </p>
           </motion.div>
         )}
 
@@ -219,5 +245,63 @@ export default function AnaliseClient(p: Props) {
         </motion.div>
       </motion.div>
     </div>
+  );
+}
+
+function RoiCalculator({ valorRecebido, windowLabel }: { valorRecebido: number; windowLabel: string }) {
+  const STORAGE_KEY = "bni-roi-investimento";
+  const [investimento, setInvestimento] = useState<string>("");
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    if (saved) setInvestimento(saved);
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEY, investimento);
+  }, [investimento]);
+
+  const investimentoNum = parseFloat(investimento.replace(",", "."));
+  const temInvestimento = !isNaN(investimentoNum) && investimentoNum > 0;
+  const roi = temInvestimento ? valorRecebido / investimentoNum : null;
+
+  return (
+    <motion.div variants={fadeUp} className="bg-surface rounded-2xl shadow-sm border border-gray-100 p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-8 h-8 rounded-xl bg-[var(--tint-blue-bg)] flex items-center justify-center">
+          <Calculator size={16} color="#2563EB" />
+        </div>
+        <div>
+          <p className="text-[13px] font-extrabold text-text-main font-display">Calculadora de ROI</p>
+          <p className="text-[10px] text-text-muted">Quanto você recebeu para cada real investido na BNI</p>
+        </div>
+      </div>
+      <label className="block text-[11px] font-semibold text-text-muted mb-1">
+        Quanto você investiu na BNI no período ({windowLabel})?
+      </label>
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-[13px] font-bold text-text-muted">R$</span>
+        <input
+          type="text"
+          inputMode="decimal"
+          value={investimento}
+          onChange={(e) => setInvestimento(e.target.value)}
+          placeholder="Ex: 3500"
+          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-[13px] font-semibold text-text-main bg-background focus:outline-none focus:ring-2 focus:ring-primary/30"
+        />
+      </div>
+      {temInvestimento ? (
+        <div className="rounded-xl bg-green-50 border border-green-100 p-3 text-center">
+          <p className="text-[20px] font-extrabold font-display text-green-700">{roi!.toFixed(1)}x</p>
+          <p className="text-[11px] text-green-800 font-semibold mt-0.5">
+            Você recebeu {fmtMoney(valorRecebido, true)} — {roi!.toFixed(1)}x o que investiu
+          </p>
+        </div>
+      ) : (
+        <p className="text-[11px] text-text-muted">
+          Informe o valor investido para calcular seu retorno sobre as referências fechadas neste período.
+        </p>
+      )}
+    </motion.div>
   );
 }

@@ -19,6 +19,7 @@ export default async function ConfigPage() {
         goalOpnf: s.goalOpnf,
         targetScore: s.targetScore,
         safetyMargin: s.safetyMargin,
+        meetingWeekday: s.meetingWeekday,
       }}
     />
   );

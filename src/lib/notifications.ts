@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { MemberSnapshot, daysSince } from "@/lib/snapshot";
+import { sendPushToUser } from "@/lib/push";
 
 type Draft = {
   tipo: "info" | "alerta" | "critico" | "confirmacao";
@@ -119,5 +120,11 @@ export async function generateNotifications(userId: string, snap: MemberSnapshot
     await prisma.notification.createMany({
       data: fresh.map((d) => ({ userId, ...d })),
     });
+
+    const push =
+      fresh.length === 1
+        ? { title: fresh[0].title, body: fresh[0].body, url: fresh[0].link }
+        : { title: `${fresh.length} novas notificações no BNI Tracker`, body: fresh[0].title, url: "/notificacoes" };
+    await sendPushToUser(userId, push).catch(() => {});
   }
 }

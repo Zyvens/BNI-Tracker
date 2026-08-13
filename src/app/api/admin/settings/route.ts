@@ -23,6 +23,9 @@ export async function PATCH(req: NextRequest) {
   ]) {
     if (body[k] !== undefined) data[k] = body[k];
   }
+  if (body.meetingWeekday !== undefined) {
+    data.meetingWeekday = body.meetingWeekday === null || body.meetingWeekday === "" ? null : parseInt(body.meetingWeekday);
+  }
   const s = await prisma.settings.upsert({
     where: { id: 1 },
     create: { id: 1, ...data },

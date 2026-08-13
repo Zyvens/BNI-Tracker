@@ -16,8 +16,22 @@ model User {
   memberId           String?  @unique
   member             Member?  @relation(fields: [memberId], references: [id], onDelete: SetNull)
   notifications      Notification[]
+  pushSubscriptions  PushSubscription[]
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+}
+
+// Inscrição de push (Web Push API) — um usuário pode ter várias (um por
+// dispositivo/navegador instalado).
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Member {
@@ -28,6 +42,7 @@ model Member {
   company   String?
   category  String? // categoria profissional na equipe
   active    Boolean  @default(true)
+  showInRanking Boolean @default(false) // opt-in: aparece no ranking/placar do capítulo
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -375,5 +390,6 @@ model Settings {
   goalOpnf       Float    @default(20000)
   targetScore    Int      @default(100)
   safetyMargin   Int      @default(10) // margem de segurança em pontos
+  meetingWeekday Int? // dia da semana da reunião: 0=domingo ... 6=sábado (null = não configurado)
   updatedAt      DateTime @updatedAt
 }
